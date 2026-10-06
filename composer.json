@@ -1,40 +1,49 @@
 {
-    "name": "intl/platform",
-    "description": "INTL shared architecture and reusable packages",
+    "name": "karband/platform",
+    "description": "Clean modular platform monorepo",
     "type": "project",
     "license": "proprietary",
     "require": {
         "php": "^8.4",
-        "intl/billing": "dev-main",
-        "intl/contracts": "@dev",
-        "intl/directory": "dev-main",
-        "intl/directory-laravel": "dev-main",
-        "intl/documents": "dev-main",
-        "intl/dynamic-forms": "dev-main",
-        "intl/external-auth": "dev-main",
-        "intl/request-journey": "dev-main",
-        "intl/service-catalog": "dev-main",
-        "intl/service-recipients": "dev-main",
-        "intl/service-requests": "dev-main",
-        "intl/workflow": "@dev"
+        "karband/audit": "@dev",
+        "karband/authorization": "@dev",
+        "karband/billing": "@dev",
+        "karband/directory": "@dev",
+        "karband/directory-laravel": "@dev",
+        "karband/documents": "@dev",
+        "karband/dynamic-forms": "@dev",
+        "karband/external-auth": "@dev",
+        "karband/request-journey": "@dev",
+        "karband/service-catalog": "@dev",
+        "karband/service-recipients": "@dev",
+        "karband/service-requests": "@dev",
+        "karband/workflow": "@dev"
     },
-    "autoload": {},
-    "autoload-dev": {},
+    "autoload-dev": {
+        "psr-4": {
+            "Karband\\Tests\\": "tests/"
+        }
+    },
     "repositories": [
         {
             "type": "path",
-            "url": "packages/*",
+            "url": "packages/*/*",
             "options": {
                 "symlink": true
             }
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
         "sort-packages": true
     },
     "require-dev": {
         "phpunit/phpunit": "^12"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "architecture": "phpunit --filter Architecture",
+        "qa": "phpunit"
     }
 }

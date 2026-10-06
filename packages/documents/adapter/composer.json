@@ -1,0 +1,27 @@
+{
+    "name": "karband/documents-laravel",
+    "description": "Private local document persistence and permission-aware uploads for INTL Laravel services",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "karband/documents": "@dev",
+        "illuminate/support": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/filesystem": "^13.0",
+        "illuminate/http": "^13.0",
+        "karband/authorization": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\DocumentsLaravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\DocumentsLaravel\\DocumentsLaravelServiceProvider"
+            ]
+        }
+    }
+}

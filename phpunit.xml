@@ -6,42 +6,44 @@
     colors="true"
 >
 <testsuites>
-    <testsuite name="INTL Shared Packages">
-        <directory>packages/contracts/tests</directory>
+    <testsuite name="Audit">
+        <directory>packages/audit/core/tests</directory>
+    </testsuite>
+    <testsuite name="Authorization">
+        <directory>packages/authorization/core/tests</directory>
     </testsuite>
     <testsuite name="Architecture">
         <directory>tests/Architecture</directory>
     </testsuite>
     <testsuite name="Workflow">
-        <directory>packages/workflow/tests</directory>
+        <directory>packages/workflow/core/tests</directory>
     </testsuite>
     <testsuite name="Directory">
-        <directory>packages/directory/tests</directory>
-        <directory>packages/directory-laravel/tests</directory>
+        <directory>packages/directory/core/tests</directory>
     </testsuite>
     <testsuite name="External Auth">
-        <directory>packages/external-auth/tests</directory>
+        <directory>packages/external-auth/core/tests</directory>
     </testsuite>
     <testsuite name="Service Requests">
-        <directory>packages/service-requests/tests</directory>
+        <directory>packages/service-requests/core/tests</directory>
     </testsuite>
     <testsuite name="Billing">
-        <directory>packages/billing/tests</directory>
+        <directory>packages/billing/core/tests</directory>
     </testsuite>
     <testsuite name="Service Catalog">
-        <directory>packages/service-catalog/tests</directory>
+        <directory>packages/service-catalog/core/tests</directory>
     </testsuite>
     <testsuite name="Service Recipients">
-        <directory>packages/service-recipients/tests</directory>
+        <directory>packages/service-recipients/core/tests</directory>
     </testsuite>
     <testsuite name="Dynamic Forms">
-        <directory>packages/dynamic-forms/tests</directory>
+        <directory>packages/dynamic-forms/core/tests</directory>
     </testsuite>
     <testsuite name="Documents">
-        <directory>packages/documents/tests</directory>
+        <directory>packages/documents/core/tests</directory>
     </testsuite>
     <testsuite name="Request Journey">
-        <directory>packages/request-journey/tests</directory>
+        <directory>packages/request-journey/core/tests</directory>
     </testsuite>
 </testsuites>
 </phpunit>

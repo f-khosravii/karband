@@ -1,0 +1,24 @@
+{
+    "name": "karband/workflow-laravel",
+    "description": "Fail-closed Laravel persistence adapter for INTL Workflow Core",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "karband/workflow": "@dev",
+        "illuminate/support": "^13.0",
+        "illuminate/database": "^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\WorkflowLaravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\WorkflowLaravel\\WorkflowLaravelServiceProvider"
+            ]
+        }
+    }
+}

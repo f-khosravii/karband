@@ -1,0 +1,19 @@
+{
+    "name": "karband/request-journey",
+    "description": "Pure framework-independent UX journey and navigation state derivation engine for INTL",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\RequestJourney\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Karband\\RequestJourney\\Tests\\": "tests/"
+        }
+    }
+}

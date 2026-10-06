@@ -1,0 +1,19 @@
+{
+    "name": "karband/external-auth",
+    "description": "Framework-independent external authentication boundary and value objects",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\ExternalAuth\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Karband\\ExternalAuth\\Tests\\": "tests/"
+        }
+    }
+}

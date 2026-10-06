@@ -1,0 +1,26 @@
+{
+    "name": "karband/service-requests-laravel",
+    "description": "Per-microservice Laravel request registry and safe orchestration of INTL packages",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "karband/service-requests": "@dev",
+        "illuminate/database": "^13.0",
+        "illuminate/support": "^13.0",
+        "karband/authorization": "@dev",
+        "karband/audit": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\ServiceRequestsLaravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\ServiceRequestsLaravel\\ServiceRequestsLaravelServiceProvider"
+            ]
+        }
+    }
+}

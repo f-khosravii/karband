@@ -1,0 +1,25 @@
+{
+    "name": "karband/service-catalog-laravel",
+    "description": "Local Laravel storage and authorized access to INTL service definitions",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "karband/service-catalog": "@dev",
+        "illuminate/support": "^13.0",
+        "illuminate/database": "^13.0",
+        "karband/authorization": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\ServiceCatalogLaravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\ServiceCatalogLaravel\\ServiceCatalogLaravelServiceProvider"
+            ]
+        }
+    }
+}

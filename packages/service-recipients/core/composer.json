@@ -1,0 +1,19 @@
+{
+    "name": "karband/service-recipients",
+    "description": "Framework independent, agency-scoped recipient profile contracts",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\ServiceRecipients\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Karband\\ServiceRecipients\\Tests\\": "tests/"
+        }
+    }
+}

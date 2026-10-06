@@ -1,0 +1,26 @@
+{
+    "name": "karband/billing-laravel",
+    "description": "Independent local payment records and central payment gateway port for INTL Laravel services",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "karband/billing": "@dev",
+        "illuminate/support": "^13.0",
+        "illuminate/database": "^13.0",
+        "karband/service-catalog": "@dev",
+        "karband/authorization": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\BillingLaravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\BillingLaravel\\BillingLaravelServiceProvider"
+            ]
+        }
+    }
+}

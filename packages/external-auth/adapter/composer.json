@@ -1,0 +1,33 @@
+{
+    "name": "karband/external-auth-laravel",
+    "description": "Laravel bridge for INTL External Authentication boundary",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "karband/external-auth": "@dev",
+        "illuminate/auth": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/support": "^13.0",
+        "karband/authorization": "@dev",
+        "karband/audit": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\ExternalAuthLaravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Karband\\ExternalAuthLaravel\\Tests\\": "tests/",
+            "Karband\\ExternalAuthLaravel\\Testing\\": "tests/Testing/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\ExternalAuthLaravel\\ExternalAuthLaravelServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "name": "karband/request-journey-laravel",
+    "description": "Request Journey Laravel registry, fact composition, and UX navigation persistence for INTL",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "karband/request-journey": "@dev",
+        "illuminate/support": "^13.0",
+        "illuminate/database": "^13.0",
+        "karband/authorization": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\RequestJourneyLaravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\RequestJourneyLaravel\\RequestJourneyLaravelServiceProvider"
+            ]
+        }
+    }
+}

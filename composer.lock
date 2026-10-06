@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "52627f1eea68f05dccc5f39386ffbd8a",
+    "content-hash": "90b55df8bf898b209b51012b8f076f36",
     "packages": [
         {
             "name": "brick/math",
@@ -697,12 +697,80 @@
             "time": "2026-09-28T14:15:54+00:00"
         },
         {
-            "name": "intl/billing",
+            "name": "karband/audit",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/billing",
-                "reference": "4abfebb61e0cc76ced0e8aba1efe9611cce26c03"
+                "url": "packages/audit/core",
+                "reference": "e953d382d4a972bec9c4a55d1cf003c2e7c1fe5f"
+            },
+            "require": {
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^12"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Karband\\Audit\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Karband\\Audit\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Framework-independent audit log event contracts and value objects",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "karband/authorization",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/authorization/core",
+                "reference": "fa31b50ae6ff6a05a359d0de428eb7981145adec"
+            },
+            "require": {
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^12"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Karband\\Authorization\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Karband\\Authorization\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Framework-independent authorization contracts, actor context and access requests",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "karband/billing",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/billing/core",
+                "reference": "e01c3ff83c081009dfedef4c93e0dc068651f0cf"
             },
             "require": {
                 "php": "^8.4"
@@ -713,12 +781,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\Billing\\": "src/"
+                    "Karband\\Billing\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\Billing\\Tests\\": "tests/"
+                    "Karband\\Billing\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -731,12 +799,12 @@
             }
         },
         {
-            "name": "intl/contracts",
+            "name": "karband/directory",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/contracts",
-                "reference": "44619386a6e299c068f46ae87fb2650f30f39012"
+                "url": "packages/directory/core",
+                "reference": "cd88c28de956cc8cf442adcfa3c80f53efd6243f"
             },
             "require": {
                 "php": "^8.4"
@@ -744,43 +812,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\Contracts\\": "src/"
+                    "Karband\\Directory\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\Contracts\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "proprietary"
-            ],
-            "description": "Framework-independent shared contracts",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "intl/directory",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "packages/directory",
-                "reference": "7c7d16830268cbfc67ded9d31d4cd5ade19ae067"
-            },
-            "require": {
-                "php": "^8.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Intl\\Directory\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Intl\\Directory\\Tests\\": "tests/"
+                    "Karband\\Directory\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -793,36 +830,35 @@
             }
         },
         {
-            "name": "intl/directory-laravel",
+            "name": "karband/directory-laravel",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/directory-laravel",
-                "reference": "7e328ffb38b72a8b75a3bdb764a9c8b70c5defe7"
+                "url": "packages/directory/adapter",
+                "reference": "db263c26540be6c25cc8acc10abb405262eeed36"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
-                "intl/contracts": "@dev",
-                "intl/directory": "dev-main",
+                "karband/directory": "@dev",
                 "php": "^8.4"
             },
             "type": "library",
             "extra": {
                 "laravel": {
                     "providers": [
-                        "Intl\\DirectoryLaravel\\DirectoryLaravelServiceProvider"
+                        "Karband\\DirectoryLaravel\\DirectoryLaravelServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Intl\\DirectoryLaravel\\": "src/"
+                    "Karband\\DirectoryLaravel\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\DirectoryLaravel\\Tests\\": "tests/"
+                    "Karband\\DirectoryLaravel\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -835,12 +871,12 @@
             }
         },
         {
-            "name": "intl/documents",
+            "name": "karband/documents",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/documents",
-                "reference": "487bf1c7dd594200466663b8bb0b123761fea2a1"
+                "url": "packages/documents/core",
+                "reference": "1a4495d8583a5bfb809347ca6e7ffb165e1f5d95"
             },
             "require": {
                 "php": "^8.4"
@@ -848,12 +884,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\Documents\\": "src/"
+                    "Karband\\Documents\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\Documents\\Tests\\": "tests/"
+                    "Karband\\Documents\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -866,12 +902,12 @@
             }
         },
         {
-            "name": "intl/dynamic-forms",
+            "name": "karband/dynamic-forms",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/dynamic-forms",
-                "reference": "c02b46c2c0256bcbe3d3d785a36564a7bf138fe0"
+                "url": "packages/dynamic-forms/core",
+                "reference": "4ffe8c444885198b59fd42b55ffa4d85206e5cd1"
             },
             "require": {
                 "php": "^8.4"
@@ -879,12 +915,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\DynamicForms\\": "src/"
+                    "Karband\\DynamicForms\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\DynamicForms\\Tests\\": "tests/"
+                    "Karband\\DynamicForms\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -897,12 +933,12 @@
             }
         },
         {
-            "name": "intl/external-auth",
+            "name": "karband/external-auth",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/external-auth",
-                "reference": "072d3a391706bc7614d7bd45e78d2804c0f162d3"
+                "url": "packages/external-auth/core",
+                "reference": "1216c17f4377847ebaa0fe52ce9078d882924822"
             },
             "require": {
                 "php": "^8.4"
@@ -910,12 +946,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\ExternalAuth\\": "src/"
+                    "Karband\\ExternalAuth\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\ExternalAuth\\Tests\\": "tests/"
+                    "Karband\\ExternalAuth\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -928,12 +964,12 @@
             }
         },
         {
-            "name": "intl/request-journey",
+            "name": "karband/request-journey",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/request-journey",
-                "reference": "027b647a2186c5b6ccdaeaa2eff9e329fad978da"
+                "url": "packages/request-journey/core",
+                "reference": "4fe8c850ba9778e78ec012b1ac77380fb1d0c0a0"
             },
             "require": {
                 "php": "^8.4"
@@ -941,12 +977,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\RequestJourney\\": "src/"
+                    "Karband\\RequestJourney\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\RequestJourney\\Tests\\": "tests/"
+                    "Karband\\RequestJourney\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -959,12 +995,12 @@
             }
         },
         {
-            "name": "intl/service-catalog",
+            "name": "karband/service-catalog",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/service-catalog",
-                "reference": "2ac5087fd2c6dff033359b74063dc52c078e9197"
+                "url": "packages/service-catalog/core",
+                "reference": "13c8529b49b54d5e04c696eb990a918575350462"
             },
             "require": {
                 "php": "^8.4"
@@ -972,12 +1008,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\ServiceCatalog\\": "src/"
+                    "Karband\\ServiceCatalog\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\ServiceCatalog\\Tests\\": "tests/"
+                    "Karband\\ServiceCatalog\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -990,12 +1026,12 @@
             }
         },
         {
-            "name": "intl/service-recipients",
+            "name": "karband/service-recipients",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/service-recipients",
-                "reference": "242220574a60afeb4a7155de349c5b5b066df60e"
+                "url": "packages/service-recipients/core",
+                "reference": "1501a9db94005156de3cd3b4009806c7fd95e2a8"
             },
             "require": {
                 "php": "^8.4"
@@ -1003,12 +1039,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\ServiceRecipients\\": "src/"
+                    "Karband\\ServiceRecipients\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\ServiceRecipients\\Tests\\": "tests/"
+                    "Karband\\ServiceRecipients\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -1021,12 +1057,12 @@
             }
         },
         {
-            "name": "intl/service-requests",
+            "name": "karband/service-requests",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/service-requests",
-                "reference": "15ca16304c99346dc2f3b28e40424b081274b340"
+                "url": "packages/service-requests/core",
+                "reference": "d722e77094854107790b3e76dc58ade347dae3a1"
             },
             "require": {
                 "php": "^8.4"
@@ -1034,12 +1070,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\ServiceRequests\\": "src/"
+                    "Karband\\ServiceRequests\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\ServiceRequests\\Tests\\": "tests/"
+                    "Karband\\ServiceRequests\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -1052,12 +1088,12 @@
             }
         },
         {
-            "name": "intl/workflow",
+            "name": "karband/workflow",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/workflow",
-                "reference": "7c0af86a0e4b479542f5f10a86d9562ca1462939"
+                "url": "packages/workflow/core",
+                "reference": "8b5ecf92beb136c971ec343afa3565f44c3a181f"
             },
             "require": {
                 "php": "^8.4"
@@ -1068,12 +1104,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Intl\\Workflow\\": "src/"
+                    "Karband\\Workflow\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Intl\\Workflow\\Tests\\": "tests/"
+                    "Karband\\Workflow\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -2293,25 +2329,25 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "12.5.7",
+            "version": "12.5.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "186dab580576598076de6818596d12b61801880e"
+                "reference": "7440368d94738d54f2c1de24dbd3871793bbb0dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/186dab580576598076de6818596d12b61801880e",
-                "reference": "186dab580576598076de6818596d12b61801880e",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/7440368d94738d54f2c1de24dbd3871793bbb0dd",
+                "reference": "7440368d94738d54f2c1de24dbd3871793bbb0dd",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^5.7.0",
+                "nikic/php-parser": "^5.9.0",
                 "php": ">=8.3",
-                "phpunit/php-text-template": "^5.0",
+                "phpunit/php-text-template": "^5.0.1",
                 "sebastian/complexity": "^5.0",
                 "sebastian/environment": "^8.1.2",
                 "sebastian/lines-of-code": "^4.0.1",
@@ -2319,7 +2355,7 @@
                 "theseer/tokenizer": "^2.0.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^12.5.28"
+                "phpunit/phpunit": "^12.5.37"
             },
             "suggest": {
                 "ext-pcov": "PHP extension that provides line coverage",
@@ -2357,7 +2393,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.7"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.8"
             },
             "funding": [
                 {
@@ -2377,7 +2413,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-01T13:24:19+00:00"
+            "time": "2026-10-03T14:03:50+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -2518,23 +2554,23 @@
         },
         {
             "name": "phpunit/php-text-template",
-            "version": "5.0.0",
+            "version": "5.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-text-template.git",
-                "reference": "e1367a453f0eda562eedb4f659e13aa900d66c53"
+                "reference": "babab73b7ef9fae406f2eb3ee11323a61caa63d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/e1367a453f0eda562eedb4f659e13aa900d66c53",
-                "reference": "e1367a453f0eda562eedb4f659e13aa900d66c53",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/babab73b7ef9fae406f2eb3ee11323a61caa63d5",
+                "reference": "babab73b7ef9fae406f2eb3ee11323a61caa63d5",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^12.0"
+                "phpunit/phpunit": "^12.5.37"
             },
             "type": "library",
             "extra": {
@@ -2566,15 +2602,27 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-text-template/issues",
                 "security": "https://github.com/sebastianbergmann/php-text-template/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-text-template/tree/5.0.0"
+                "source": "https://github.com/sebastianbergmann/php-text-template/tree/5.0.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/phpunit/php-text-template",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2025-02-07T04:59:16+00:00"
+            "time": "2026-10-03T04:51:29+00:00"
         },
         {
             "name": "phpunit/php-timer",
@@ -2638,16 +2686,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.36",
+            "version": "12.5.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "ddb775588a0ea447d1c9b190c0f29c174ce81d65"
+                "reference": "1e87ad87fe57665a7f6e99a6e467329c11e851cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ddb775588a0ea447d1c9b190c0f29c174ce81d65",
-                "reference": "ddb775588a0ea447d1c9b190c0f29c174ce81d65",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1e87ad87fe57665a7f6e99a6e467329c11e851cc",
+                "reference": "1e87ad87fe57665a7f6e99a6e467329c11e851cc",
                 "shasum": ""
             },
             "require": {
@@ -2661,10 +2709,10 @@
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.3",
-                "phpunit/php-code-coverage": "^12.5.7",
+                "phpunit/php-code-coverage": "^12.5.8",
                 "phpunit/php-file-iterator": "^6.0.2",
                 "phpunit/php-invoker": "^6.0.0",
-                "phpunit/php-text-template": "^5.0.0",
+                "phpunit/php-text-template": "^5.0.1",
                 "phpunit/php-timer": "^8.0.0",
                 "sebastian/cli-parser": "^4.2.1",
                 "sebastian/comparator": "^7.1.8",
@@ -2675,7 +2723,7 @@
                 "sebastian/object-enumerator": "^7.0.0",
                 "sebastian/recursion-context": "^7.0.1",
                 "sebastian/type": "^6.0.4",
-                "sebastian/version": "^6.0.0",
+                "sebastian/version": "^6.0.1",
                 "staabm/side-effects-detector": "^1.0.5"
             },
             "bin": [
@@ -2716,7 +2764,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.36"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.38"
             },
             "funding": [
                 {
@@ -2724,7 +2772,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-09-25T08:47:40+00:00"
+            "time": "2026-10-05T05:49:30+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -3595,16 +3643,16 @@
         },
         {
             "name": "sebastian/version",
-            "version": "6.0.0",
+            "version": "6.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/version.git",
-                "reference": "3e6ccf7657d4f0a59200564b08cead899313b53c"
+                "reference": "9e935a16187e14f39b0e79910dabd614972cdb26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/3e6ccf7657d4f0a59200564b08cead899313b53c",
-                "reference": "3e6ccf7657d4f0a59200564b08cead899313b53c",
+                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/9e935a16187e14f39b0e79910dabd614972cdb26",
+                "reference": "9e935a16187e14f39b0e79910dabd614972cdb26",
                 "shasum": ""
             },
             "require": {
@@ -3637,15 +3685,27 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/version/issues",
                 "security": "https://github.com/sebastianbergmann/version/security/policy",
-                "source": "https://github.com/sebastianbergmann/version/tree/6.0.0"
+                "source": "https://github.com/sebastianbergmann/version/tree/6.0.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/sebastian/version",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2025-02-07T05:00:38+00:00"
+            "time": "2026-10-04T05:50:08+00:00"
         },
         {
             "name": "staabm/side-effects-detector",
@@ -3751,20 +3811,21 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
-        "intl/billing": 20,
-        "intl/contracts": 20,
-        "intl/directory": 20,
-        "intl/directory-laravel": 20,
-        "intl/documents": 20,
-        "intl/dynamic-forms": 20,
-        "intl/external-auth": 20,
-        "intl/request-journey": 20,
-        "intl/service-catalog": 20,
-        "intl/service-recipients": 20,
-        "intl/service-requests": 20,
-        "intl/workflow": 20
+        "karband/audit": 20,
+        "karband/authorization": 20,
+        "karband/billing": 20,
+        "karband/directory": 20,
+        "karband/directory-laravel": 20,
+        "karband/documents": 20,
+        "karband/dynamic-forms": 20,
+        "karband/external-auth": 20,
+        "karband/request-journey": 20,
+        "karband/service-catalog": 20,
+        "karband/service-recipients": 20,
+        "karband/service-requests": 20,
+        "karband/workflow": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Intl\Platform\Tests\Architecture;
+namespace Karband\Tests\Architecture;
 
 use PHPUnit\Framework\TestCase;
 
@@ -10,22 +10,13 @@ final class CircularDependencyTest extends TestCase
 {
     public function test_packages_have_no_circular_dependencies(): void
     {
-        $packagesPath = dirname(__DIR__, 2) . '/packages';
+        $packages = ArchitectureTestHelper::getPackages();
         $graph = [];
 
-        foreach (glob($packagesPath . '/*/composer.json') as $file) {
-            $composer = json_decode(
-                file_get_contents($file),
-                true,
-                512,
-                JSON_THROW_ON_ERROR
-            );
-
-            $name = $composer['name'];
+        foreach ($packages as $name => $info) {
             $graph[$name] = [];
-
-            foreach (array_keys($composer['require'] ?? []) as $dependency) {
-                if (str_starts_with($dependency, 'intl/')) {
+            foreach (array_keys($info['composer']['require'] ?? []) as $dependency) {
+                if (str_starts_with($dependency, 'karband/')) {
                     $graph[$name][] = $dependency;
                 }
             }

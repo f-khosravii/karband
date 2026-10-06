@@ -1,9 +1,0 @@
-{
-  "name": "intl/service-requests",
-  "description": "Framework-independent request identity and recipient-reference contracts",
-  "type": "library",
-  "license": "proprietary",
-  "require": {"php": "^8.4"},
-  "autoload": {"psr-4": {"Intl\\ServiceRequests\\": "src/"}},
-  "autoload-dev": {"psr-4": {"Intl\\ServiceRequests\\Tests\\": "tests/"}}
-}

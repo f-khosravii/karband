@@ -11,33 +11,33 @@ The INTL Platform provides decoupled, reusable domain libraries and Laravel adap
 The platform comprises 21 Composer packages strictly divided into three tiers:
 
 ### Tier 0: Platform Contracts
-- `intl/contracts`: Framework-free core interfaces, Value Objects, and Shared Types (`ActorContext`, `AccessRequest`, `AuditEvent`, `HealthCheckInterface`).
+- `karband/contracts`: Framework-free core interfaces, Value Objects, and Shared Types (`ActorContext`, `AccessRequest`, `AuditEvent`, `HealthCheckInterface`).
 
 ### Tier 1: Pure Domain Packages (Framework-Free)
-1. `intl/workflow`: Deterministic state-machine engine, graph transition definitions, action authorization interfaces.
-2. `intl/directory`: Local organization, user, membership, and organization role model with fail-closed runtime resolution value objects.
-3. `intl/service-catalog`: Service definitions, versioning, pricing modes, request policies, workflow bindings.
-4. `intl/dynamic-forms`: Schema validation for flat forms, sections, repeatable groups with `_item_id`, and sibling conditional fields.
-5. `intl/documents`: Document slot definitions, MIME/size rules, conditional requirements (`required_when`, `required_at`), and upload validators.
-6. `intl/billing`: Financial value objects (`Money`), two-stage preparation/confirmation commands, payment/refund status enums.
-7. `intl/service-recipients`: Citizen/company identity hashing, encryption contracts, and authority verification policies.
-8. `intl/service-requests`: Request models, request policies, structured correction scopes, quote revision lifecycle.
-9. `intl/external-auth`: External identity representations, SSO ticket validation abstractions, session status transitions.
-10. `intl/request-journey`: Multi-step UX navigation engine (`linear`, `free`), step state derivation (`LOCKED`, `AVAILABLE`, `CURRENT`, `COMPLETED`, `SKIPPED`), prerequisite checking.
+1. `karband/workflow`: Deterministic state-machine engine, graph transition definitions, action authorization interfaces.
+2. `karband/directory`: Local organization, user, membership, and organization role model with fail-closed runtime resolution value objects.
+3. `karband/service-catalog`: Service definitions, versioning, pricing modes, request policies, workflow bindings.
+4. `karband/dynamic-forms`: Schema validation for flat forms, sections, repeatable groups with `_item_id`, and sibling conditional fields.
+5. `karband/documents`: Document slot definitions, MIME/size rules, conditional requirements (`required_when`, `required_at`), and upload validators.
+6. `karband/billing`: Financial value objects (`Money`), two-stage preparation/confirmation commands, payment/refund status enums.
+7. `karband/service-recipients`: Citizen/company identity hashing, encryption contracts, and authority verification policies.
+8. `karband/service-requests`: Request models, request policies, structured correction scopes, quote revision lifecycle.
+9. `karband/external-auth`: External identity representations, SSO ticket validation abstractions, session status transitions.
+10. `karband/request-journey`: Multi-step UX navigation engine (`linear`, `free`), step state derivation (`LOCKED`, `AVAILABLE`, `CURRENT`, `COMPLETED`, `SKIPPED`), prerequisite checking.
 
 ### Tier 2: Framework Integration Packages (Laravel Adapters)
-1. `intl/authorization-laravel`: Spatie-backed microservice-local RBAC, `Principal`, `ActorContext`, scope checkers.
-2. `intl/audit-laravel`: Spatie-backed tamper-evident structured activity logging.
-3. `intl/directory-laravel`: Microservice-local database persistence for organizations, users, memberships, and external reference mappings.
-4. `intl/workflow-laravel`: Eloquent workflow persistence, optimistic concurrency control, transaction management.
-5. `intl/service-catalog-laravel`: Catalog repository, JSON settings parsing, revision activations.
-6. `intl/dynamic-forms-laravel`: Answer persistence, versioned form drafts, structured correction validation.
-7. `intl/documents-laravel`: Document storage, versioning, replacement policies, file safety scanner integration, withdrawal audit.
-8. `intl/billing-laravel`: Payment intents, two-stage payment processing, idempotency locking, central gateway bridge, refund service.
-9. `intl/service-recipients-laravel`: Encrypted recipient storage, blind indexing, identity verification bridge.
-10. `intl/service-requests-laravel`: Request lifecycle orchestrator, request quote management, structured correction rounds, transition gates.
-11. `intl/external-auth-laravel`: Session store, token-to-principal resolution, introspection, session lifecycle tracking.
-12. `intl/request-journey-laravel`: Journey definition registry, default fact provider, step visitation persistence.
+1. `karband/authorization-laravel`: Spatie-backed microservice-local RBAC, `Principal`, `ActorContext`, scope checkers.
+2. `karband/audit-laravel`: Spatie-backed tamper-evident structured activity logging.
+3. `karband/directory-laravel`: Microservice-local database persistence for organizations, users, memberships, and external reference mappings.
+4. `karband/workflow-laravel`: Eloquent workflow persistence, optimistic concurrency control, transaction management.
+5. `karband/service-catalog-laravel`: Catalog repository, JSON settings parsing, revision activations.
+6. `karband/dynamic-forms-laravel`: Answer persistence, versioned form drafts, structured correction validation.
+7. `karband/documents-laravel`: Document storage, versioning, replacement policies, file safety scanner integration, withdrawal audit.
+8. `karband/billing-laravel`: Payment intents, two-stage payment processing, idempotency locking, central gateway bridge, refund service.
+9. `karband/service-recipients-laravel`: Encrypted recipient storage, blind indexing, identity verification bridge.
+10. `karband/service-requests-laravel`: Request lifecycle orchestrator, request quote management, structured correction rounds, transition gates.
+11. `karband/external-auth-laravel`: Session store, token-to-principal resolution, introspection, session lifecycle tracking.
+12. `karband/request-journey-laravel`: Journey definition registry, default fact provider, step visitation persistence.
 
 ---
 

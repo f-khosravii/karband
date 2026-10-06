@@ -1,0 +1,25 @@
+{
+    "name": "karband/dynamic-forms-laravel",
+    "description": "Local Laravel persistence and authorization for INTL dynamic forms",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "karband/dynamic-forms": "@dev",
+        "illuminate/support": "^13.0",
+        "illuminate/database": "^13.0",
+        "karband/authorization": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\DynamicFormsLaravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\DynamicFormsLaravel\\DynamicFormsLaravelServiceProvider"
+            ]
+        }
+    }
+}

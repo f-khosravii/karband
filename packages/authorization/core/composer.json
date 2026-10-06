@@ -1,0 +1,22 @@
+{
+    "name": "karband/authorization",
+    "description": "Framework-independent authorization contracts, actor context and access requests",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\Authorization\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Karband\\Authorization\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12"
+    }
+}

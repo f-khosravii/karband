@@ -5,15 +5,16 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="Unit">
-            <directory>tests/Unit</directory>
-        </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
         <testsuite name="Package Laravel Tests">
-            <directory>../../packages/external-auth-laravel/tests</directory>
-            <directory>../../packages/billing-laravel/tests</directory>
+            <directory>../../packages/audit/adapter/tests</directory>
+            <directory>../../packages/authorization/adapter/tests</directory>
+            <directory>../../packages/billing/adapter/tests</directory>
+            <directory>../../packages/directory/adapter/tests</directory>
+            <directory>../../packages/external-auth/adapter/tests</directory>
+            <directory>../../packages/workflow/adapter/tests</directory>
         </testsuite>
     </testsuites>
     <source>

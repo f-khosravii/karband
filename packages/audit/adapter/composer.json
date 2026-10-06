@@ -1,0 +1,26 @@
+{
+    "name": "karband/audit-laravel",
+    "description": "Small INTL adapter over Spatie Activitylog for per-microservice business audit events",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "illuminate/support": "^13.0",
+        "illuminate/database": "^13.0",
+        "spatie/laravel-activitylog": "^5.1",
+        "karband/authorization": "@dev",
+        "karband/audit": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\AuditLaravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\AuditLaravel\\AuditLaravelServiceProvider"
+            ]
+        }
+    }
+}
