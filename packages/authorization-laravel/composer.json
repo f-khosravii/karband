@@ -1,0 +1,26 @@
+{
+  "name": "intl/authorization-laravel",
+  "description": "Fail-closed Laravel/Spatie authorization adapter for INTL services",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.4",
+    "intl/contracts": "dev-main",
+    "illuminate/auth": "^13.0",
+    "illuminate/support": "^13.0",
+    "spatie/laravel-permission": "^8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Intl\\AuthorizationLaravel\\": "src/"
+    }
+  },
+  "suggest": {
+    "intl/workflow-laravel": "Optional WorkflowAuthorizer and ActorResolver bridge"
+  },
+  "extra": {
+    "laravel": {
+      "providers": ["Intl\\AuthorizationLaravel\\AuthorizationLaravelServiceProvider"]
+    }
+  }
+}

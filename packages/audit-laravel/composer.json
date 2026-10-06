@@ -1,0 +1,22 @@
+{
+  "name": "intl/audit-laravel",
+  "description": "Small INTL adapter over Spatie Activitylog for per-microservice business audit events",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.4",
+    "intl/contracts": "dev-main",
+    "intl/authorization-laravel": "dev-main",
+    "illuminate/support": "^13.0",
+    "illuminate/database": "^13.0",
+    "spatie/laravel-activitylog": "^5.1"
+  },
+  "autoload": {
+    "psr-4": {"Intl\\AuditLaravel\\": "src/"}
+  },
+  "extra": {
+    "laravel": {
+      "providers": ["Intl\\AuditLaravel\\AuditLaravelServiceProvider"]
+    }
+  }
+}

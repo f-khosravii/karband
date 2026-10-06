@@ -1,0 +1,37 @@
+{
+  "review_date": "2026-10-02",
+  "scope": "Delivery archives from this chat, not the user's current git checkout",
+  "delivery_zip_archives": 9,
+  "unique_archive_file_paths": 211,
+  "new_package_manifests_reviewed": 14,
+  "existing_package_not_delivered_as_manifest": "intl/contracts",
+  "source_php_files_linted": 166,
+  "php_lint_interpreter": "PHP 8.4.23 CLI (review environment)",
+  "graph_check": "no cycles or unknown INTL dependencies among reviewed manifests plus existing intl/contracts",
+  "original_git_patches_zip_reverse_checks": 7,
+  "reconstructed_patches_verified_from_zips": [
+    "dynamic-forms",
+    "documents"
+  ],
+  "existing_documents_test_fixture_requires_clean_install_fix": true,
+  "standalone_smoke_demo_scripts_exit_zero": 12,
+  "previous_user_reported_sandbox": {
+    "stage": "after Documents",
+    "tests_passed": 111,
+    "assertions": 203
+  },
+  "not_executed_in_current_review": [
+    "Composer dependency solver for full final installation",
+    "Laravel PHPUnit with Billing/ServiceRequests/Audit installed",
+    "Live central payments API",
+    "Concurrent database tests on actual production DB engine",
+    "NCR deployment, migrations or rollout"
+  ],
+  "synthetic_clean_patch_chain": {
+    "total_patches_applied": 11,
+    "result": "PASS",
+    "archive_file_occurrences_checked": 211,
+    "expected_difference": "Docs test bridge fixture single-use correction only",
+    "limitation": "not run against the users actual staged working tree"
+  }
+}

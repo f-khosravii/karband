@@ -1,0 +1,28 @@
+/vendor/
+/node_modules/
+.env
+.env.*
+!.env.example
+
+# Laravel applications
+/apps/*/vendor/
+/apps/*/node_modules/
+/apps/*/.env
+/apps/*/storage/*.key
+/apps/*/storage/logs/*
+/apps/*/bootstrap/cache/*.php
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Testing
+.phpunit.cache/
+coverage/
+# PHPUnit
+.phpunit.result.cache
+.phpunit.cache/
+
+.work/

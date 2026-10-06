@@ -1,0 +1,17 @@
+{
+  "name": "intl/dynamic-forms-laravel",
+  "description": "Local Laravel persistence and authorization for INTL dynamic forms",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.4",
+    "intl/dynamic-forms": "dev-main",
+    "intl/contracts": "dev-main",
+    "intl/authorization-laravel": "dev-main",
+    "intl/service-catalog-laravel": "dev-main",
+    "illuminate/support": "^13.0",
+    "illuminate/database": "^13.0"
+  },
+  "autoload": {"psr-4": {"Intl\\DynamicFormsLaravel\\": "src/"}},
+  "extra": {"laravel": {"providers": ["Intl\\DynamicFormsLaravel\\DynamicFormsLaravelServiceProvider"]}}
+}

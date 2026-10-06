@@ -1,0 +1,22 @@
+{
+  "name": "intl/workflow-laravel",
+  "description": "Fail-closed Laravel persistence adapter for INTL Workflow Core",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.4",
+    "intl/workflow": "dev-main",
+    "illuminate/support": "^13.0",
+    "illuminate/database": "^13.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Intl\\WorkflowLaravel\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": ["Intl\\WorkflowLaravel\\WorkflowLaravelServiceProvider"]
+    }
+  }
+}

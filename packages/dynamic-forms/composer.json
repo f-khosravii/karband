@@ -1,0 +1,9 @@
+{
+  "name": "intl/dynamic-forms",
+  "description": "Framework-free versioned form definitions and server-side answer validation",
+  "type": "library",
+  "license": "proprietary",
+  "require": {"php": "^8.4"},
+  "autoload": {"psr-4": {"Intl\\DynamicForms\\": "src/"}},
+  "autoload-dev": {"psr-4": {"Intl\\DynamicForms\\Tests\\": "tests/"}}
+}

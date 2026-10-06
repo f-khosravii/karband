@@ -1,0 +1,32 @@
+{
+  "name": "intl/service-requests-laravel",
+  "description": "Per-microservice Laravel request registry and safe orchestration of INTL packages",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.4",
+    "intl/service-requests": "dev-main",
+    "intl/contracts": "dev-main",
+    "intl/authorization-laravel": "dev-main",
+    "intl/service-catalog-laravel": "dev-main",
+    "intl/workflow-laravel": "dev-main",
+    "intl/dynamic-forms-laravel": "dev-main",
+    "intl/documents-laravel": "dev-main",
+    "intl/billing-laravel": "dev-main",
+    "illuminate/database": "^13.0",
+    "illuminate/support": "^13.0",
+    "intl/service-recipients-laravel": "dev-main"
+  },
+  "autoload": {
+    "psr-4": {
+      "Intl\\ServiceRequestsLaravel\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Intl\\ServiceRequestsLaravel\\ServiceRequestsLaravelServiceProvider"
+      ]
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "intl/service-recipients-laravel",
+  "description": "Fail-closed, local Laravel profile storage for INTL service recipients",
+  "type": "library", "license": "proprietary",
+  "require": {
+    "php": "^8.4",
+    "intl/service-recipients": "dev-main",
+    "intl/contracts": "dev-main",
+    "intl/authorization-laravel": "dev-main",
+    "illuminate/database": "^13.0", "illuminate/support": "^13.0", "illuminate/encryption": "^13.0"
+  },
+  "autoload": {"psr-4": {"Intl\\ServiceRecipientsLaravel\\": "src/"}},
+  "extra": {"laravel": {"providers": ["Intl\\ServiceRecipientsLaravel\\ServiceRecipientsServiceProvider"]}},
+  "suggest": {
+    "intl/service-requests-laravel": "Optional host-owned request and draft coordinator integration",
+    "intl/audit-laravel": "Recommended for a mandatory audited recipient event sink"
+  }
+}

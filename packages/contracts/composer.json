@@ -1,0 +1,19 @@
+{
+    "name": "intl/contracts",
+    "description": "Framework-independent shared contracts",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Intl\\Contracts\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Intl\\Contracts\\Tests\\": "tests/"
+        }
+    }
+}

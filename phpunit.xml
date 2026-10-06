@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="vendor/autoload.php"
+    colors="true"
+>
+<testsuites>
+    <testsuite name="INTL Shared Packages">
+        <directory>packages/contracts/tests</directory>
+    </testsuite>
+    <testsuite name="Architecture">
+        <directory>tests/Architecture</directory>
+    </testsuite>
+    <testsuite name="Workflow">
+        <directory>packages/workflow/tests</directory>
+    </testsuite>
+    <testsuite name="Directory">
+        <directory>packages/directory/tests</directory>
+        <directory>packages/directory-laravel/tests</directory>
+    </testsuite>
+    <testsuite name="External Auth">
+        <directory>packages/external-auth/tests</directory>
+    </testsuite>
+    <testsuite name="Service Requests">
+        <directory>packages/service-requests/tests</directory>
+    </testsuite>
+    <testsuite name="Billing">
+        <directory>packages/billing/tests</directory>
+    </testsuite>
+    <testsuite name="Service Catalog">
+        <directory>packages/service-catalog/tests</directory>
+    </testsuite>
+    <testsuite name="Service Recipients">
+        <directory>packages/service-recipients/tests</directory>
+    </testsuite>
+    <testsuite name="Dynamic Forms">
+        <directory>packages/dynamic-forms/tests</directory>
+    </testsuite>
+    <testsuite name="Documents">
+        <directory>packages/documents/tests</directory>
+    </testsuite>
+    <testsuite name="Request Journey">
+        <directory>packages/request-journey/tests</directory>
+    </testsuite>
+</testsuites>
+</phpunit>

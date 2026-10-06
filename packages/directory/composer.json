@@ -1,0 +1,19 @@
+{
+  "name": "intl/directory",
+  "description": "Framework-independent local entity, organization, user, and membership model for INTL Platform",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Intl\\Directory\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Intl\\Directory\\Tests\\": "tests/"
+    }
+  }
+}

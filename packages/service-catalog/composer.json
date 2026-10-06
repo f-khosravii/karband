@@ -1,0 +1,9 @@
+{
+  "name": "intl/service-catalog",
+  "description": "Framework-independent service definitions and lifecycle for one isolated INTL service",
+  "type": "library",
+  "license": "proprietary",
+  "require": {"php": "^8.4"},
+  "autoload": {"psr-4": {"Intl\\ServiceCatalog\\": "src/"}},
+  "autoload-dev": {"psr-4": {"Intl\\ServiceCatalog\\Tests\\": "tests/"}}
+}

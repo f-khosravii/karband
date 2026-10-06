@@ -1,0 +1,63 @@
+{
+  "id": "ncr.request",
+  "version": 1,
+  "initial_state": "draft",
+  "states": [
+    "draft",
+    "submitted",
+    "correction_required",
+    "approved",
+    "rejected",
+    "in_issuance",
+    "completed"
+  ],
+  "transitions": [
+    {
+      "action": "submit",
+      "from": "draft",
+      "to": "submitted",
+      "allowed_roles": ["agency"],
+      "guards": ["request_complete"]
+    },
+    {
+      "action": "require_correction",
+      "from": "submitted",
+      "to": "correction_required",
+      "allowed_roles": ["government_admin"],
+      "comment_required": true
+    },
+    {
+      "action": "resubmit",
+      "from": "correction_required",
+      "to": "submitted",
+      "allowed_roles": ["agency"],
+      "guards": ["request_complete"]
+    },
+    {
+      "action": "approve",
+      "from": "submitted",
+      "to": "approved",
+      "allowed_roles": ["government_admin"]
+    },
+    {
+      "action": "reject",
+      "from": "submitted",
+      "to": "rejected",
+      "allowed_roles": ["government_admin"],
+      "comment_required": true
+    },
+    {
+      "action": "record_confirmed_payment",
+      "from": "approved",
+      "to": "in_issuance",
+      "allowed_roles": ["agency"],
+      "guards": ["trusted_payment_confirmed"]
+    },
+    {
+      "action": "complete",
+      "from": "in_issuance",
+      "to": "completed",
+      "allowed_roles": ["government_admin"]
+    }
+  ]
+}
