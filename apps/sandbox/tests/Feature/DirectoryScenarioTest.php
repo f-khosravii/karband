@@ -14,9 +14,9 @@ use Karband\Authorization\AccessRequest;
 use Karband\Authorization\ActorContext;
 use Karband\Authorization\AuthorizationDenied;
 use Karband\Directory\Enums\DirectoryStatus;
-use Karband\Directory\Enums\OrganizationRole;
 use Karband\Directory\Exceptions\DirectoryActorResolutionException;
-use Karband\DirectoryLaravel\Services\DirectoryResolver;
+use Karband\Directory\Services\DirectoryResolver;
+use Karband\Directory\ValueObjects\OrganizationRole;
 use Karband\DirectoryLaravel\Services\DirectoryStorage;
 use Karband\ExternalAuth\Contracts\ExternalAuthProviderInterface;
 use Karband\ExternalAuth\ValueObjects\ExternalIdentity;
@@ -160,9 +160,9 @@ final class DirectoryScenarioTest extends TestCase
     public function test_scenario_a_operator_dual_auth_identity(): void
     {
         // 1. Provision Operator Org and Operator User in Directory
-        $org = $this->storage->createOrganization('ORG-001', 'INTL Operator Org', DirectoryStatus::Active, [OrganizationRole::Operator]);
+        $org = $this->storage->createOrganization('ORG-001', 'INTL Operator Org', DirectoryStatus::Active);
         $user = $this->storage->createUser('U-10', 'Ahmad Operator', DirectoryStatus::Active, 'ahmad@platform.gov');
-        $this->storage->createMembership('MEM-001', 'U-10', 'ORG-001', DirectoryStatus::Active);
+        $this->storage->createMembership('MEM-001', 'U-10', 'ORG-001', DirectoryStatus::Active, new OrganizationRole('operator'));
 
         // Link Epishkhan external subject to same Directory User U-10
         $this->storage->linkUserReference('epishkhan', 'subject', 'EXT-SUBJ-99', 'U-10');
@@ -197,7 +197,7 @@ final class DirectoryScenarioTest extends TestCase
     public function test_scenario_b_agency_member_id_attribution_only(): void
     {
         // 1. Provision Agency in Directory
-        $this->storage->createOrganization('ORG-500', 'Tehran Central Agency', DirectoryStatus::Active, [OrganizationRole::Agency]);
+        $this->storage->createOrganization('ORG-500', 'Tehran Central Agency', DirectoryStatus::Active);
         $this->storage->linkOrganizationReference('epishkhan', 'organization', 'AG-728', 'ORG-500');
 
         // 2. Incoming Epishkhan authenticated session with member_id = M-7821
@@ -237,7 +237,7 @@ final class DirectoryScenarioTest extends TestCase
      */
     public function test_scenario_c_provider_resolves_without_user(): void
     {
-        $this->storage->createOrganization('ORG-200', 'Ministry of Justice', DirectoryStatus::Active, [OrganizationRole::Provider]);
+        $this->storage->createOrganization('ORG-200', 'Ministry of Justice', DirectoryStatus::Active);
         $this->storage->linkOrganizationReference('sso-gov', 'organization', 'GOV-JUSTICE', 'ORG-200');
 
         $actor = $this->resolver->resolveBySourceReference('sso-gov', 'organization', 'GOV-JUSTICE');
@@ -255,7 +255,7 @@ final class DirectoryScenarioTest extends TestCase
     public function test_scenario_d_lifecycle_denials_fail_closed(): void
     {
         // 1. Inactive Organization
-        $this->storage->createOrganization('ORG-INACTIVE', 'Closed Org', DirectoryStatus::Inactive, [OrganizationRole::Provider]);
+        $this->storage->createOrganization('ORG-INACTIVE', 'Closed Org', DirectoryStatus::Inactive);
         $this->storage->linkOrganizationReference('sso', 'organization', 'EXT-INACTIVE-ORG', 'ORG-INACTIVE');
 
         try {
@@ -310,8 +310,8 @@ final class DirectoryScenarioTest extends TestCase
         $this->storage->createOrganization('ORG-C', 'Third Org (No Membership)', DirectoryStatus::Active);
 
         $this->storage->createUser('USR-MULTI', 'Consultant User', DirectoryStatus::Active);
-        $this->storage->createMembership('M-A', 'USR-MULTI', 'ORG-A', DirectoryStatus::Active);
-        $this->storage->createMembership('M-B', 'USR-MULTI', 'ORG-B', DirectoryStatus::Active);
+        $this->storage->createMembership('M-A', 'USR-MULTI', 'ORG-A', DirectoryStatus::Active, new OrganizationRole('advisor'));
+        $this->storage->createMembership('M-B', 'USR-MULTI', 'ORG-B', DirectoryStatus::Active, new OrganizationRole('manager'));
         $this->storage->linkUserReference('sso', 'subject', 'EXT-CONSULTANT', 'USR-MULTI');
 
         // No org context -> DENIED (must never pick first record)
@@ -347,10 +347,9 @@ final class DirectoryScenarioTest extends TestCase
      */
     public function test_scenario_f_domain_role_does_not_grant_authorization_permissions(): void
     {
-        // OrganizationRole::OPERATOR does not grant Spatie permissions
-        $org = $this->storage->createOrganization('ORG-OP', 'Operator Org', DirectoryStatus::Active, [OrganizationRole::Operator]);
+        $org = $this->storage->createOrganization('ORG-OP', 'Operator Org', DirectoryStatus::Active);
         $user = $this->storage->createUser('USR-PLAIN', 'Plain Operator User', DirectoryStatus::Active);
-        $this->storage->createMembership('MEM-OP', 'USR-PLAIN', 'ORG-OP', DirectoryStatus::Active);
+        $this->storage->createMembership('MEM-OP', 'USR-PLAIN', 'ORG-OP', DirectoryStatus::Active, new OrganizationRole('operator'));
 
         $authUser = new SandboxTestUser([
             'id' => 888,
@@ -368,7 +367,7 @@ final class DirectoryScenarioTest extends TestCase
         \Illuminate\Support\Facades\Auth::guard('web')->setUser($authUser);
         $this->principalsProvider->current = $principal;
 
-        // Authorizer denies access despite Organization having OrganizationRole::OPERATOR
+        // Authorizer denies access despite Membership having OrganizationRole('operator')
         $this->expectException(AuthorizationDenied::class);
         $this->authorizer->authorize(
             $principal->actor,

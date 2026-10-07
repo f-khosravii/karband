@@ -15,6 +15,7 @@
         "karband/catalog-panel": "@dev",
         "karband/directory": "@dev",
         "karband/directory-laravel": "@dev",
+        "karband/directory-panel": "@dev",
         "karband/documents": "@dev",
         "karband/documents-laravel": "@dev",
         "karband/dynamic-forms": "@dev",

@@ -69,6 +69,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\Karband\ServiceRequestsLaravel\Contracts\RepresentativeProfileValidator::class, \App\Bridges\DefaultRepresentativeProfileValidator::class);
         $this->app->bind(\Karband\CatalogPanel\Contracts\CatalogPanelPortInterface::class, \App\Bridges\CatalogPanelBridge::class);
         $this->app->bind(\Karband\CatalogPanel\Contracts\CatalogPanelAuthorizationInterface::class, \App\Bridges\CatalogPanelBridge::class);
+        $this->app->bind(\Karband\DirectoryPanel\Contracts\DirectoryPanelPortInterface::class, \App\Bridges\DirectoryPanelBridge::class);
+        $this->app->bind(\Karband\DirectoryPanel\Contracts\DirectoryPanelAuthorizationInterface::class, \App\Bridges\DirectoryPanelBridge::class);
     }
 
     /**

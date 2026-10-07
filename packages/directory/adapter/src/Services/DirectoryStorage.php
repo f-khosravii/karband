@@ -4,101 +4,71 @@ declare(strict_types=1);
 
 namespace Karband\DirectoryLaravel\Services;
 
+use DateTimeImmutable;
 use Illuminate\Database\Connection;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
+use Karband\Directory\Contracts\DirectoryStoragePortInterface;
 use Karband\Directory\Enums\DirectoryStatus;
-use Karband\Directory\Enums\OrganizationRole;
+use Karband\Directory\Exceptions\DirectoryConflictException;
 use Karband\Directory\ValueObjects\Membership;
 use Karband\Directory\ValueObjects\Organization;
+use Karband\Directory\ValueObjects\OrganizationRole;
 use Karband\Directory\ValueObjects\User;
-use Karband\DirectoryLaravel\Exceptions\DirectoryConflictException;
-use Karband\DirectoryLaravel\Exceptions\DirectoryNotFoundException;
 
-final readonly class DirectoryStorage
+/**
+ * Pure database persistence repository implementing DirectoryStoragePortInterface.
+ */
+final readonly class DirectoryStorage implements DirectoryStoragePortInterface
 {
     public function __construct(public Connection $connection)
     {
+    }
+
+    // --- Organizations ---
+
+    public function saveOrganization(Organization $org): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $exists = $this->connection->table('directory_organizations')->where('id', $org->id)->exists();
+
+        if ($exists) {
+            $this->connection->table('directory_organizations')->where('id', $org->id)->update([
+                'name' => $org->name,
+                'status' => $org->status->value,
+                'email' => $org->email,
+                'phone' => $org->phone,
+                'updated_at' => $now,
+            ]);
+        } else {
+            $this->connection->table('directory_organizations')->insert([
+                'id' => $org->id,
+                'name' => $org->name,
+                'status' => $org->status->value,
+                'email' => $org->email,
+                'phone' => $org->phone,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
     }
 
     public function createOrganization(
         string $id,
         string $name,
         DirectoryStatus $status = DirectoryStatus::Active,
-        array $roles = [],
         ?string $email = null,
         ?string $phone = null
     ): Organization {
-        $now = date('Y-m-d H:i:s');
-
-        $exists = $this->connection->table('directory_organizations')->where('id', $id)->exists();
-        if ($exists) {
-            throw new DirectoryConflictException("Organization [{$id}] already exists.");
-        }
-
-        $this->connection->table('directory_organizations')->insert([
-            'id' => $id,
-            'name' => $name,
-            'status' => $status->value,
-            'email' => $email,
-            'phone' => $phone,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        foreach ($roles as $role) {
-            $roleEnum = $role instanceof OrganizationRole ? $role : OrganizationRole::from((string) $role);
-            $this->assignOrganizationRole($id, $roleEnum);
-        }
-
-        return new Organization(
+        $org = new Organization(
             id: $id,
             name: $name,
             status: $status,
-            roles: $roles,
             email: $email,
             phone: $phone
         );
-    }
-
-    public function updateOrganization(
-        string $id,
-        ?string $name = null,
-        ?DirectoryStatus $status = null,
-        ?string $email = null,
-        ?string $phone = null
-    ): Organization {
-        $row = $this->connection->table('directory_organizations')->where('id', $id)->first();
-        if ($row === null) {
-            throw new DirectoryNotFoundException("Organization [{$id}] not found.");
-        }
-
-        $updates = ['updated_at' => date('Y-m-d H:i:s')];
-        if ($name !== null) {
-            $updates['name'] = $name;
-        }
-        if ($status !== null) {
-            $updates['status'] = $status->value;
-        }
-        if ($email !== null) {
-            $updates['email'] = $email;
-        }
-        if ($phone !== null) {
-            $updates['phone'] = $phone;
-        }
-
-        $this->connection->table('directory_organizations')->where('id', $id)->update($updates);
-
-        return $this->findOrganization($id) ?? throw new DirectoryNotFoundException("Organization [{$id}] not found.");
-    }
-
-    public function activateOrganization(string $id): Organization
-    {
-        return $this->updateOrganization($id, status: DirectoryStatus::Active);
-    }
-
-    public function deactivateOrganization(string $id): Organization
-    {
-        return $this->updateOrganization($id, status: DirectoryStatus::Inactive);
+        $this->saveOrganization($org);
+        return $org;
     }
 
     public function findOrganization(string $id): ?Organization
@@ -108,67 +78,96 @@ final readonly class DirectoryStorage
             return null;
         }
 
-        $roles = $this->getOrganizationRoles($id);
-
         return new Organization(
             id: (string) $row->id,
             name: (string) $row->name,
             status: DirectoryStatus::from((string) $row->status),
-            roles: $roles,
             email: $row->email !== null ? (string) $row->email : null,
-            phone: $row->phone !== null ? (string) $row->phone : null
+            phone: $row->phone !== null ? (string) $row->phone : null,
+            createdAt: isset($row->created_at) && $row->created_at !== null ? new DateTimeImmutable((string) $row->created_at) : null,
+            updatedAt: isset($row->updated_at) && $row->updated_at !== null ? new DateTimeImmutable((string) $row->updated_at) : null,
         );
     }
 
-    public function assignOrganizationRole(string $organizationId, OrganizationRole $role): void
-    {
-        $orgExists = $this->connection->table('directory_organizations')->where('id', $organizationId)->exists();
-        if (!$orgExists) {
-            throw new DirectoryNotFoundException("Organization [{$organizationId}] not found.");
+    public function listOrganizations(
+        ?string $search = null,
+        ?DirectoryStatus $status = null,
+        int $limit = 100,
+        int $offset = 0
+    ): array {
+        $query = $this->connection->table('directory_organizations');
+        if ($search !== null && trim($search) !== '') {
+            $trimmed = trim($search);
+            $query->where(function ($q) use ($trimmed): void {
+                $q->where('name', 'like', "%{$trimmed}%")
+                  ->orWhere('id', 'like', "%{$trimmed}%")
+                  ->orWhere('email', 'like', "%{$trimmed}%");
+            });
         }
+        if ($status !== null) {
+            $query->where('status', $status->value);
+        }
+        $query->orderBy('created_at', 'desc')->offset($offset)->limit($limit);
 
-        $exists = $this->connection->table('directory_organization_roles')
-            ->where('organization_id', $organizationId)
-            ->where('role', $role->value)
-            ->exists();
+        $rows = $query->get();
+        $orgs = [];
+        foreach ($rows as $row) {
+            $orgs[] = new Organization(
+                id: (string) $row->id,
+                name: (string) $row->name,
+                status: DirectoryStatus::from((string) $row->status),
+                email: $row->email !== null ? (string) $row->email : null,
+                phone: $row->phone !== null ? (string) $row->phone : null,
+                createdAt: isset($row->created_at) && $row->created_at !== null ? new DateTimeImmutable((string) $row->created_at) : null,
+                updatedAt: isset($row->updated_at) && $row->updated_at !== null ? new DateTimeImmutable((string) $row->updated_at) : null,
+            );
+        }
+        return $orgs;
+    }
+
+    public function countOrganizations(?string $search = null, ?DirectoryStatus $status = null): int
+    {
+        $query = $this->connection->table('directory_organizations');
+        if ($search !== null && trim($search) !== '') {
+            $trimmed = trim($search);
+            $query->where(function ($q) use ($trimmed): void {
+                $q->where('name', 'like', "%{$trimmed}%")
+                  ->orWhere('id', 'like', "%{$trimmed}%")
+                  ->orWhere('email', 'like', "%{$trimmed}%");
+            });
+        }
+        if ($status !== null) {
+            $query->where('status', $status->value);
+        }
+        return $query->count();
+    }
+
+    // --- Users ---
+
+    public function saveUser(User $user): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $exists = $this->connection->table('directory_users')->where('id', $user->id)->exists();
 
         if ($exists) {
-            return;
+            $this->connection->table('directory_users')->where('id', $user->id)->update([
+                'display_name' => $user->displayName,
+                'status' => $user->status->value,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'updated_at' => $now,
+            ]);
+        } else {
+            $this->connection->table('directory_users')->insert([
+                'id' => $user->id,
+                'display_name' => $user->displayName,
+                'status' => $user->status->value,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
         }
-
-        $now = date('Y-m-d H:i:s');
-        $this->connection->table('directory_organization_roles')->insert([
-            'id' => (string) Str::ulid(),
-            'organization_id' => $organizationId,
-            'role' => $role->value,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-    }
-
-    public function removeOrganizationRole(string $organizationId, OrganizationRole $role): void
-    {
-        $this->connection->table('directory_organization_roles')
-            ->where('organization_id', $organizationId)
-            ->where('role', $role->value)
-            ->delete();
-    }
-
-    /**
-     * @return list<OrganizationRole>
-     */
-    public function getOrganizationRoles(string $organizationId): array
-    {
-        $rows = $this->connection->table('directory_organization_roles')
-            ->where('organization_id', $organizationId)
-            ->get();
-
-        $roles = [];
-        foreach ($rows as $row) {
-            $roles[] = OrganizationRole::from((string) $row->role);
-        }
-
-        return $roles;
     }
 
     public function createUser(
@@ -178,71 +177,15 @@ final readonly class DirectoryStorage
         ?string $email = null,
         ?string $phone = null
     ): User {
-        $now = date('Y-m-d H:i:s');
-
-        $exists = $this->connection->table('directory_users')->where('id', $id)->exists();
-        if ($exists) {
-            throw new DirectoryConflictException("User [{$id}] already exists.");
-        }
-
-        $this->connection->table('directory_users')->insert([
-            'id' => $id,
-            'display_name' => $displayName,
-            'status' => $status->value,
-            'email' => $email,
-            'phone' => $phone,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        return new User(
+        $user = new User(
             id: $id,
             displayName: $displayName,
             status: $status,
             email: $email,
             phone: $phone
         );
-    }
-
-    public function updateUser(
-        string $id,
-        ?string $displayName = null,
-        ?DirectoryStatus $status = null,
-        ?string $email = null,
-        ?string $phone = null
-    ): User {
-        $row = $this->connection->table('directory_users')->where('id', $id)->first();
-        if ($row === null) {
-            throw new DirectoryNotFoundException("User [{$id}] not found.");
-        }
-
-        $updates = ['updated_at' => date('Y-m-d H:i:s')];
-        if ($displayName !== null) {
-            $updates['display_name'] = $displayName;
-        }
-        if ($status !== null) {
-            $updates['status'] = $status->value;
-        }
-        if ($email !== null) {
-            $updates['email'] = $email;
-        }
-        if ($phone !== null) {
-            $updates['phone'] = $phone;
-        }
-
-        $this->connection->table('directory_users')->where('id', $id)->update($updates);
-
-        return $this->findUser($id) ?? throw new DirectoryNotFoundException("User [{$id}] not found.");
-    }
-
-    public function activateUser(string $id): User
-    {
-        return $this->updateUser($id, status: DirectoryStatus::Active);
-    }
-
-    public function deactivateUser(string $id): User
-    {
-        return $this->updateUser($id, status: DirectoryStatus::Inactive);
+        $this->saveUser($user);
+        return $user;
     }
 
     public function findUser(string $id): ?User
@@ -257,164 +200,267 @@ final readonly class DirectoryStorage
             displayName: (string) $row->display_name,
             status: DirectoryStatus::from((string) $row->status),
             email: $row->email !== null ? (string) $row->email : null,
-            phone: $row->phone !== null ? (string) $row->phone : null
+            phone: $row->phone !== null ? (string) $row->phone : null,
+            createdAt: isset($row->created_at) && $row->created_at !== null ? new DateTimeImmutable((string) $row->created_at) : null,
+            updatedAt: isset($row->updated_at) && $row->updated_at !== null ? new DateTimeImmutable((string) $row->updated_at) : null,
         );
+    }
+
+    public function listUsers(
+        ?string $search = null,
+        ?DirectoryStatus $status = null,
+        int $limit = 100,
+        int $offset = 0
+    ): array {
+        $query = $this->connection->table('directory_users');
+        if ($search !== null && trim($search) !== '') {
+            $trimmed = trim($search);
+            $query->where(function ($q) use ($trimmed): void {
+                $q->where('display_name', 'like', "%{$trimmed}%")
+                  ->orWhere('id', 'like', "%{$trimmed}%")
+                  ->orWhere('email', 'like', "%{$trimmed}%");
+            });
+        }
+        if ($status !== null) {
+            $query->where('status', $status->value);
+        }
+        $query->orderBy('created_at', 'desc')->offset($offset)->limit($limit);
+
+        $rows = $query->get();
+        $users = [];
+        foreach ($rows as $row) {
+            $users[] = new User(
+                id: (string) $row->id,
+                displayName: (string) $row->display_name,
+                status: DirectoryStatus::from((string) $row->status),
+                email: $row->email !== null ? (string) $row->email : null,
+                phone: $row->phone !== null ? (string) $row->phone : null,
+                createdAt: isset($row->created_at) && $row->created_at !== null ? new DateTimeImmutable((string) $row->created_at) : null,
+                updatedAt: isset($row->updated_at) && $row->updated_at !== null ? new DateTimeImmutable((string) $row->updated_at) : null,
+            );
+        }
+        return $users;
+    }
+
+    public function countUsers(?string $search = null, ?DirectoryStatus $status = null): int
+    {
+        $query = $this->connection->table('directory_users');
+        if ($search !== null && trim($search) !== '') {
+            $trimmed = trim($search);
+            $query->where(function ($q) use ($trimmed): void {
+                $q->where('display_name', 'like', "%{$trimmed}%")
+                  ->orWhere('id', 'like', "%{$trimmed}%")
+                  ->orWhere('email', 'like', "%{$trimmed}%");
+            });
+        }
+        if ($status !== null) {
+            $query->where('status', $status->value);
+        }
+        return $query->count();
+    }
+
+    // --- Memberships (Directory-Owned Distinct Period History) ---
+
+    public function saveMembership(Membership $membership): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $exists = $this->connection->table('directory_memberships')->where('id', $membership->id)->exists();
+
+        $data = [
+            'user_id' => $membership->userId,
+            'organization_id' => $membership->organizationId,
+            'status' => $membership->status->value,
+            'role' => $membership->role->value,
+            'active_marker' => $membership->isActive() ? 1 : null,
+            'ended_at' => $membership->endedAt?->format('Y-m-d H:i:s'),
+            'updated_at' => $now,
+        ];
+
+        try {
+            if ($exists) {
+                $this->connection->table('directory_memberships')->where('id', $membership->id)->update($data);
+            } else {
+                $data['id'] = $membership->id;
+                $data['created_at'] = $membership->createdAt?->format('Y-m-d H:i:s') ?? $now;
+                $this->connection->table('directory_memberships')->insert($data);
+            }
+        } catch (QueryException $e) {
+            // Translate database unique constraint violation to DirectoryConflictException
+            if (str_contains($e->getMessage(), 'dir_mem_user_org_active_unique') || $e->getCode() === '23000' || (int)$e->getCode() === 23000) {
+                throw new DirectoryConflictException(
+                    "Active membership already exists for user {$membership->userId} in organization {$membership->organizationId}."
+                );
+            }
+            throw $e;
+        }
     }
 
     public function createMembership(
         string $id,
         string $userId,
         string $organizationId,
-        DirectoryStatus $status = DirectoryStatus::Active
+        DirectoryStatus $status = DirectoryStatus::Active,
+        OrganizationRole|string $role = 'member',
+        ?DateTimeImmutable $createdAt = null,
+        ?DateTimeImmutable $endedAt = null
     ): Membership {
-        $userExists = $this->connection->table('directory_users')->where('id', $userId)->exists();
-        if (!$userExists) {
-            throw new DirectoryNotFoundException("User [{$userId}] not found.");
-        }
-
-        $orgExists = $this->connection->table('directory_organizations')->where('id', $organizationId)->exists();
-        if (!$orgExists) {
-            throw new DirectoryNotFoundException("Organization [{$organizationId}] not found.");
-        }
-
-        $exists = $this->connection->table('directory_memberships')
-            ->where('user_id', $userId)
-            ->where('organization_id', $organizationId)
-            ->exists();
-
-        if ($exists) {
-            throw new DirectoryConflictException("Membership for User [{$userId}] and Organization [{$organizationId}] already exists.");
-        }
-
-        $now = date('Y-m-d H:i:s');
-        $this->connection->table('directory_memberships')->insert([
-            'id' => $id,
-            'user_id' => $userId,
-            'organization_id' => $organizationId,
-            'status' => $status->value,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        return new Membership(
+        $mem = new Membership(
             id: $id,
             userId: $userId,
             organizationId: $organizationId,
-            status: $status
+            role: $role,
+            status: $status,
+            createdAt: $createdAt,
+            endedAt: $endedAt
         );
+        $this->saveMembership($mem);
+        return $mem;
     }
 
-    public function setMembershipStatus(string $userId, string $organizationId, DirectoryStatus $status): Membership
+    public function findMembershipById(string $id): ?Membership
     {
-        $row = $this->connection->table('directory_memberships')
-            ->where('user_id', $userId)
-            ->where('organization_id', $organizationId)
-            ->first();
-
+        $row = $this->connection->table('directory_memberships')->where('id', $id)->first();
         if ($row === null) {
-            throw new DirectoryNotFoundException("Membership for User [{$userId}] and Organization [{$organizationId}] not found.");
+            return null;
         }
 
-        $this->connection->table('directory_memberships')
-            ->where('user_id', $userId)
-            ->where('organization_id', $organizationId)
-            ->update([
-                'status' => $status->value,
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
-
-        return new Membership(
-            id: (string) $row->id,
-            userId: $userId,
-            organizationId: $organizationId,
-            status: $status
-        );
+        return $this->hydrateMembership($row);
     }
 
-    public function findMembership(string $userId, string $organizationId): ?Membership
+    public function findActiveMembership(string $userId, string $organizationId): ?Membership
     {
         $row = $this->connection->table('directory_memberships')
             ->where('user_id', $userId)
             ->where('organization_id', $organizationId)
+            ->where('status', DirectoryStatus::Active->value)
+            ->orderBy('created_at', 'desc')
             ->first();
 
         if ($row === null) {
             return null;
         }
 
-        return new Membership(
-            id: (string) $row->id,
-            userId: (string) $row->user_id,
-            organizationId: (string) $row->organization_id,
-            status: DirectoryStatus::from((string) $row->status)
-        );
+        return $this->hydrateMembership($row);
     }
 
-    /**
-     * @return list<Membership>
-     */
-    public function listUserMemberships(string $userId, ?DirectoryStatus $status = null): array
+    public function findMembership(string $userId, string $organizationId): ?Membership
     {
-        $query = $this->connection->table('directory_memberships')->where('user_id', $userId);
+        return $this->findActiveMembership($userId, $organizationId)
+            ?? $this->findLatestMembership($userId, $organizationId);
+    }
+
+    public function findLatestMembership(string $userId, string $organizationId): ?Membership
+    {
+        $row = $this->connection->table('directory_memberships')
+            ->where('user_id', $userId)
+            ->where('organization_id', $organizationId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($row === null) {
+            return null;
+        }
+
+        return $this->hydrateMembership($row);
+    }
+
+    public function listMembershipsForUser(string $userId, ?DirectoryStatus $status = null): array
+    {
+        $query = $this->connection->table('directory_memberships')
+            ->where('user_id', $userId);
+
         if ($status !== null) {
             $query->where('status', $status->value);
         }
 
-        $rows = $query->get();
-        $list = [];
-        foreach ($rows as $row) {
-            $list[] = new Membership(
-                id: (string) $row->id,
-                userId: (string) $row->user_id,
-                organizationId: (string) $row->organization_id,
-                status: DirectoryStatus::from((string) $row->status)
-            );
-        }
-
-        return $list;
+        $rows = $query->orderBy('created_at', 'desc')->get();
+        return array_map(fn ($r) => $this->hydrateMembership($r), $rows->all());
     }
 
-    public function linkOrganizationReference(
-        string $source,
-        string $referenceKind,
-        string $externalId,
-        string $organizationId
-    ): void {
-        $orgExists = $this->connection->table('directory_organizations')->where('id', $organizationId)->exists();
-        if (!$orgExists) {
-            throw new DirectoryNotFoundException("Organization [{$organizationId}] not found.");
-        }
-
-        $this->linkReferenceInternal($source, $referenceKind, $externalId, 'organization', $organizationId, null);
+    public function listUserMemberships(string $userId, ?DirectoryStatus $status = null): array
+    {
+        return $this->listMembershipsForUser($userId, $status);
     }
 
-    public function linkUserReference(
-        string $source,
-        string $referenceKind,
-        string $externalId,
-        string $userId
-    ): void {
-        $userExists = $this->connection->table('directory_users')->where('id', $userId)->exists();
-        if (!$userExists) {
-            throw new DirectoryNotFoundException("User [{$userId}] not found.");
+    public function listMembershipsForOrganization(string $organizationId, ?DirectoryStatus $status = null): array
+    {
+        $query = $this->connection->table('directory_memberships')
+            ->where('organization_id', $organizationId);
+
+        if ($status !== null) {
+            $query->where('status', $status->value);
         }
 
-        $this->linkReferenceInternal($source, $referenceKind, $externalId, 'user', null, $userId);
+        $rows = $query->orderBy('created_at', 'desc')->get();
+        return array_map(fn ($r) => $this->hydrateMembership($r), $rows->all());
     }
 
-    private function linkReferenceInternal(
+    public function listOrganizationMemberships(string $organizationId, ?DirectoryStatus $status = null): array
+    {
+        return $this->listMembershipsForOrganization($organizationId, $status);
+    }
+
+    public function listMembershipsForUserAndOrganization(string $userId, string $organizationId): array
+    {
+        $rows = $this->connection->table('directory_memberships')
+            ->where('user_id', $userId)
+            ->where('organization_id', $organizationId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return array_map(fn ($r) => $this->hydrateMembership($r), $rows->all());
+    }
+
+    public function listMemberships(
+        ?string $userId = null,
+        ?string $organizationId = null,
+        ?DirectoryStatus $status = null,
+        int $limit = 100,
+        int $offset = 0
+    ): array {
+        $query = $this->connection->table('directory_memberships');
+        if ($userId !== null) {
+            $query->where('user_id', $userId);
+        }
+        if ($organizationId !== null) {
+            $query->where('organization_id', $organizationId);
+        }
+        if ($status !== null) {
+            $query->where('status', $status->value);
+        }
+        $rows = $query->orderBy('created_at', 'desc')->offset($offset)->limit($limit)->get();
+
+        return array_map(fn ($r) => $this->hydrateMembership($r), $rows->all());
+    }
+
+    public function countMemberships(
+        ?string $userId = null,
+        ?string $organizationId = null,
+        ?DirectoryStatus $status = null
+    ): int {
+        $query = $this->connection->table('directory_memberships');
+        if ($userId !== null) {
+            $query->where('user_id', $userId);
+        }
+        if ($organizationId !== null) {
+            $query->where('organization_id', $organizationId);
+        }
+        if ($status !== null) {
+            $query->where('status', $status->value);
+        }
+        return $query->count();
+    }
+
+    // --- External References ---
+
+    public function saveExternalReference(
         string $source,
         string $referenceKind,
         string $externalId,
         string $targetType,
-        ?string $targetOrganizationId,
+        ?string $targetOrgId,
         ?string $targetUserId
     ): void {
-        $existing = $this->findExternalReference($source, $referenceKind, $externalId);
-        if ($existing !== null) {
-            throw new DirectoryConflictException("External reference [{$source}:{$referenceKind}:{$externalId}] is already linked.");
-        }
-
         $now = date('Y-m-d H:i:s');
         $this->connection->table('directory_external_references')->insert([
             'id' => (string) Str::ulid(),
@@ -422,14 +468,24 @@ final readonly class DirectoryStorage
             'reference_kind' => $referenceKind,
             'external_id' => $externalId,
             'target_type' => $targetType,
-            'target_organization_id' => $targetOrganizationId,
+            'target_organization_id' => $targetOrgId,
             'target_user_id' => $targetUserId,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
     }
 
-    public function unlinkReference(string $source, string $referenceKind, string $externalId): void
+    public function linkOrganizationReference(string $source, string $referenceKind, string $externalId, string $targetOrgId): void
+    {
+        $this->saveExternalReference($source, $referenceKind, $externalId, 'organization', $targetOrgId, null);
+    }
+
+    public function linkUserReference(string $source, string $referenceKind, string $externalId, string $targetUserId): void
+    {
+        $this->saveExternalReference($source, $referenceKind, $externalId, 'user', null, $targetUserId);
+    }
+
+    public function deleteExternalReference(string $source, string $referenceKind, string $externalId): void
     {
         $this->connection->table('directory_external_references')
             ->where('source', $source)
@@ -445,5 +501,20 @@ final readonly class DirectoryStorage
             ->where('reference_kind', $referenceKind)
             ->where('external_id', $externalId)
             ->first();
+    }
+
+    private function hydrateMembership(object $row): Membership
+    {
+        $roleString = isset($row->role) && $row->role !== null ? (string) $row->role : 'member';
+
+        return new Membership(
+            id: (string) $row->id,
+            userId: (string) $row->user_id,
+            organizationId: (string) $row->organization_id,
+            role: new OrganizationRole($roleString),
+            status: DirectoryStatus::from((string) $row->status),
+            createdAt: isset($row->created_at) && $row->created_at !== null ? new DateTimeImmutable((string) $row->created_at) : null,
+            endedAt: isset($row->ended_at) && $row->ended_at !== null ? new DateTimeImmutable((string) $row->ended_at) : null
+        );
     }
 }

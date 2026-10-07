@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fca6204b418e3a48a4b5d608ebded48f",
+    "content-hash": "6bc3e1f6a8a0b234b0dbd84c154e38d8",
     "packages": [
         {
             "name": "brick/math",
@@ -1271,6 +1271,42 @@
             }
         },
         {
+            "name": "karband/catalog-panel",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/catalog-panel",
+                "reference": "cc277b7af49810e75a9b583c2d550098d72482ec"
+            },
+            "require": {
+                "illuminate/http": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/routing": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/support": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/view": "^11.0 || ^12.0 || ^13.0",
+                "php": "^8.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Karband\\CatalogPanel\\CatalogPanelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Karband\\CatalogPanel\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Role-agnostic Service Catalog management panel for Karband",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "karband/directory",
             "version": "dev-main",
             "dist": {
@@ -1306,11 +1342,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/directory/adapter",
-                "reference": "d20ab09c02569426be560f9782ea1953bef930e5"
+                "reference": "9759dcaaafc5a0b744c6d34e5be7c4bfefe913cd"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "karband/audit": "@dev",
                 "karband/directory": "@dev",
                 "php": "^8.4"
             },
@@ -1336,6 +1373,42 @@
                 "proprietary"
             ],
             "description": "Fail-closed local Laravel persistence and resolution for INTL Directory",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "karband/directory-panel",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/directory-panel",
+                "reference": "cd8db13c61c953607b45d94b4cec6d63eaabbcbe"
+            },
+            "require": {
+                "illuminate/http": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/routing": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/support": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/view": "^11.0 || ^12.0 || ^13.0",
+                "php": "^8.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Karband\\DirectoryPanel\\DirectoryPanelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Karband\\DirectoryPanel\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Role-agnostic Directory management panel for Karband",
             "transport-options": {
                 "relative": true
             }
@@ -1650,11 +1723,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/service-catalog/adapter",
-                "reference": "68a409419f538e73470629b15e12cef8d763631d"
+                "reference": "0ec61d59886b3a0014e964283d436fa8eba20162"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "karband/audit": "@dev",
                 "karband/authorization": "@dev",
                 "karband/service-catalog": "@dev",
                 "php": "^8.4"
@@ -8985,8 +9059,10 @@
         "karband/authorization-laravel": 20,
         "karband/billing": 20,
         "karband/billing-laravel": 20,
+        "karband/catalog-panel": 20,
         "karband/directory": 20,
         "karband/directory-laravel": 20,
+        "karband/directory-panel": 20,
         "karband/documents": 20,
         "karband/documents-laravel": 20,
         "karband/dynamic-forms": 20,

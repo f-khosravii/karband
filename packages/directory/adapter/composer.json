@@ -6,6 +6,7 @@
     "require": {
         "php": "^8.4",
         "karband/directory": "@dev",
+        "karband/audit": "@dev",
         "illuminate/database": "^13.0",
         "illuminate/support": "^13.0"
     },

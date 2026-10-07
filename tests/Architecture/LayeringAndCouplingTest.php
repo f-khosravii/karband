@@ -11,7 +11,7 @@ final class LayeringAndCouplingTest extends TestCase
     public function test_recursive_discovery_finds_all_packages(): void
     {
         $packages = ArchitectureTestHelper::getPackages();
-        self::assertCount(25, $packages, 'Must discover all 25 monorepo packages dynamically');
+        self::assertCount(26, $packages, 'Must discover all 26 monorepo packages dynamically');
         
         foreach ($packages as $name => $info) {
             self::assertNotEmpty($info['name'], "Package at {$info['path']} must have a valid name");

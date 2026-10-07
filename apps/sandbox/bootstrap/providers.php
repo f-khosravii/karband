@@ -6,4 +6,5 @@ use Karband\CatalogPanel\CatalogPanelServiceProvider;
 return [
     AppServiceProvider::class,
     CatalogPanelServiceProvider::class,
+    \Karband\DirectoryPanel\DirectoryPanelServiceProvider::class,
 ];

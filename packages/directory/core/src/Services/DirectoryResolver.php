@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Karband\DirectoryLaravel\Services;
+namespace Karband\Directory\Services;
 
 use Karband\Directory\Contracts\DirectoryResolverInterface;
+use Karband\Directory\Contracts\DirectoryStoragePortInterface;
 use Karband\Directory\Exceptions\DirectoryActorResolutionException;
 use Karband\Directory\ValueObjects\ResolvedDirectoryActor;
 
 final readonly class DirectoryResolver implements DirectoryResolverInterface
 {
-    public function __construct(private DirectoryStorage $storage)
+    public function __construct(private DirectoryStoragePortInterface $storage)
     {
     }
 
@@ -70,7 +71,7 @@ final readonly class DirectoryResolver implements DirectoryResolverInterface
             throw new DirectoryActorResolutionException("User [{$userId}] requires explicit organization context to resolve actor.");
         }
 
-        $membership = $this->storage->findMembership($userId, $explicitOrganizationId);
+        $membership = $this->storage->findActiveMembership($userId, $explicitOrganizationId);
         if ($membership === null || !$membership->isActive()) {
             throw new DirectoryActorResolutionException("Membership between user [{$userId}] and organization [{$explicitOrganizationId}] is missing or inactive.");
         }

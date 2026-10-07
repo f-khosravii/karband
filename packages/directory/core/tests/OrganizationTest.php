@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Karband\Directory\Tests;
 
 use Karband\Directory\Enums\DirectoryStatus;
-use Karband\Directory\Enums\OrganizationRole;
 use Karband\Directory\Exceptions\DirectoryValidationException;
 use Karband\Directory\ValueObjects\Organization;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +17,6 @@ final class OrganizationTest extends TestCase
             id: 'org-123',
             name: 'Ministry of Health',
             status: DirectoryStatus::Active,
-            roles: [OrganizationRole::Provider, OrganizationRole::Operator],
             email: 'contact@health.gov',
             phone: '+982112345678'
         );
@@ -26,9 +24,6 @@ final class OrganizationTest extends TestCase
         $this->assertSame('org-123', $org->id);
         $this->assertSame('Ministry of Health', $org->name);
         $this->assertTrue($org->isActive());
-        $this->assertTrue($org->hasRole(OrganizationRole::Provider));
-        $this->assertTrue($org->hasRole(OrganizationRole::Operator));
-        $this->assertFalse($org->hasRole(OrganizationRole::Agency));
         $this->assertSame('contact@health.gov', $org->email);
         $this->assertSame('+982112345678', $org->phone);
     }
@@ -38,12 +33,10 @@ final class OrganizationTest extends TestCase
         $org = new Organization(
             id: 'org-inactive',
             name: 'Deprecated Agency',
-            status: DirectoryStatus::Inactive,
-            roles: [OrganizationRole::Agency]
+            status: DirectoryStatus::Inactive
         );
 
         $this->assertFalse($org->isActive());
-        $this->assertTrue($org->hasRole(OrganizationRole::Agency));
     }
 
     public function test_empty_id_throws_validation_exception(): void

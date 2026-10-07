@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace Karband\Directory\ValueObjects;
 
+use DateTimeImmutable;
 use Karband\Directory\Enums\DirectoryStatus;
-use Karband\Directory\Enums\OrganizationRole;
 use Karband\Directory\Exceptions\DirectoryValidationException;
 
 final readonly class Organization
 {
-    /**
-     * @param list<OrganizationRole> $roles
-     */
+    public ?DateTimeImmutable $createdAt;
+    public ?DateTimeImmutable $updatedAt;
+
     public function __construct(
         public string $id,
         public string $name,
         public DirectoryStatus $status,
-        public array $roles = [],
         public ?string $email = null,
         public ?string $phone = null,
+        DateTimeImmutable|string|null $createdAt = null,
+        DateTimeImmutable|string|null $updatedAt = null,
     ) {
         if (trim($id) === '' || strlen($id) > 191) {
             throw new DirectoryValidationException('Organization ID must be 1-191 characters.');
@@ -33,20 +34,13 @@ final readonly class Organization
         if ($phone !== null && (trim($phone) === '' || strlen($phone) > 64)) {
             throw new DirectoryValidationException('Organization phone must be 1-64 characters when present.');
         }
-        foreach ($roles as $role) {
-            if (!$role instanceof OrganizationRole) {
-                throw new DirectoryValidationException('Organization roles must be instances of OrganizationRole.');
-            }
-        }
+
+        $this->createdAt = is_string($createdAt) ? new DateTimeImmutable($createdAt) : $createdAt;
+        $this->updatedAt = is_string($updatedAt) ? new DateTimeImmutable($updatedAt) : $updatedAt;
     }
 
     public function isActive(): bool
     {
         return $this->status->isActive();
-    }
-
-    public function hasRole(OrganizationRole $role): bool
-    {
-        return in_array($role, $this->roles, true);
     }
 }
