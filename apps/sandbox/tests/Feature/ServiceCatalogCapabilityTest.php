@@ -44,6 +44,7 @@ final class ServiceCatalogCapabilityTest extends TestCase
     private CatalogTestPrincipalProvider $principals;
     private CatalogTestScopes $scopes;
     private CatalogTestAccount $account;
+    private CatalogTestAuditRecorder $audit;
 
     protected function setUp(): void
     {
@@ -78,8 +79,10 @@ final class ServiceCatalogCapabilityTest extends TestCase
         ]);
         $this->principals = new CatalogTestPrincipalProvider();
         $this->scopes = new CatalogTestScopes();
+        $this->audit = new CatalogTestAuditRecorder();
         $this->app->instance(PrincipalProvider::class, $this->principals);
         $this->app->instance(ScopeChecker::class, $this->scopes);
+        $this->app->instance(\Karband\Audit\AuditRecorderInterface::class, $this->audit);
         $this->app->bind(ActorResolver::class, WorkflowActorResolver::class);
         $this->app->bind(WorkflowAuthorizer::class, WorkflowAuthorizationBridge::class);
         $this->asRole('platform_admin', 'platform');
@@ -103,10 +106,18 @@ final class ServiceCatalogCapabilityTest extends TestCase
         return new WorkflowBinding('sample.workflow', $version);
     }
 
-    private function draft(string $code = 'sample', int $version = 1): ServiceDraft
+    private function draft(string $code = 'sample', int $version = 1, array $extraSettings = []): ServiceDraft
     {
+        $settings = array_merge([
+            'internal_label' => 'internal',
+            'pricing_mode' => 'fixed_catalog',
+            'billing_fixed_price_minor' => 15000,
+            'billing_currency' => 'EUR',
+            'refund_events' => ['request.rejected' => 'automatic'],
+        ], $extraSettings);
+
         return new ServiceDraft($code, 'Example Service', 'Public description',
-            ['internal_label' => 'internal'], $this->binding($version));
+            $settings, $this->binding($version));
     }
 
     private function publish(int $version = 1): void
@@ -364,6 +375,100 @@ final class ServiceCatalogCapabilityTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->catalog()->available(999);
     }
+
+    public function test_activation_fails_if_fixed_catalog_has_invalid_or_missing_financial_terms(): void
+    {
+        $this->publish(1);
+        $created = $this->catalog()->create(new ServiceDraft('incomplete', 'Incomplete Service', null, [
+            'pricing_mode' => 'fixed_catalog',
+            // Missing billing_fixed_price_minor, billing_currency, refund_events
+        ], $this->binding(1)));
+
+        $this->expectException(InvalidService::class);
+        $this->catalog()->activate('incomplete', $created->revision);
+    }
+
+    public function test_platform_admin_can_update_metadata_and_financial_terms_safely(): void
+    {
+        $created = $this->create('safe.meta');
+        $this->assertSame(0, $created->revision);
+        $this->assertSame('Example Service', $created->name);
+
+        // Update metadata
+        $updatedMeta = $this->catalog()->updateMetadata('safe.meta', 0, 'Updated Name', 'Updated description');
+        $this->assertSame(1, $updatedMeta->revision);
+        $this->assertSame('Updated Name', $updatedMeta->name);
+        $this->assertSame('Updated description', $updatedMeta->description);
+
+        // Update financial terms (price change: 15.00 EUR -> 20.00 EUR / 1500 -> 2000 minor units)
+        $updatedPrice = $this->catalog()->updateFinancialTerms('safe.meta', 1, 2000, 'EUR', ['request.rejected' => 'automatic']);
+        $this->assertSame(2, $updatedPrice->revision);
+        $this->assertSame(2000, $updatedPrice->settings['billing_fixed_price_minor']);
+        $this->assertSame('EUR', $updatedPrice->settings['billing_currency']);
+        $this->assertSame('€20.00', sprintf('€%.2f', $updatedPrice->settings['billing_fixed_price_minor'] / 100));
+
+        // Activate
+        $active = $this->catalog()->activate('safe.meta', 2);
+        $this->assertSame(3, $active->revision);
+        $this->assertSame(ServiceStatus::Active, $active->status);
+    }
+
+    public function test_price_edit_creates_new_immutable_revision(): void
+    {
+        $active = $this->activate('price.test');
+        $this->assertSame(1, $active->revision);
+        $this->assertSame(15000, $active->settings['billing_fixed_price_minor']);
+        $this->assertSame('€150.00', sprintf('€%.2f', $active->settings['billing_fixed_price_minor'] / 100));
+
+        // Admin updates price to 18000 minor units (€180.00)
+        $rev2 = $this->catalog()->updateFinancialTerms('price.test', 1, 18000, 'EUR', ['request.rejected' => 'automatic']);
+        $this->assertSame(2, $rev2->revision);
+        $this->assertSame(18000, $rev2->settings['billing_fixed_price_minor']);
+        $this->assertSame('€180.00', sprintf('€%.2f', $rev2->settings['billing_fixed_price_minor'] / 100));
+
+        // Physical database proof that catalog_services table holds revision 2 with 18000 minor units
+        $dbRow = \Illuminate\Support\Facades\DB::table('catalog_services')->where('code', 'price.test')->first();
+        $this->assertNotNull($dbRow);
+        $this->assertSame(2, (int) $dbRow->revision);
+        $storedSettings = json_decode((string) $dbRow->settings, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame(18000, $storedSettings['billing_fixed_price_minor']);
+        $this->assertSame('EUR', $storedSettings['billing_currency']);
+
+        // Fetching service returns latest revision deterministically
+        $fetched = $this->catalog()->get('price.test');
+        $this->assertSame(2, $fetched->revision);
+        $this->assertSame(18000, $fetched->settings['billing_fixed_price_minor']);
+    }
+
+    public function test_admin_mutations_emit_audit_evidence_for_all_lifecycle_events(): void
+    {
+        $this->audit->events = [];
+        $created = $this->create('audit.svc');
+        $this->assertNotEmpty($this->audit->events);
+        $createEvent = $this->audit->events[count($this->audit->events) - 1];
+        $this->assertSame('catalog.service.created', $createEvent->code);
+        $this->assertSame('audit.svc', $createEvent->subjectId);
+
+        $this->catalog()->updateMetadata('audit.svc', 0, 'New Name');
+        $updateEvent = $this->audit->events[count($this->audit->events) - 1];
+        $this->assertSame('catalog.service.updated', $updateEvent->code);
+        $this->assertSame('audit.svc', $updateEvent->subjectId);
+
+        $this->catalog()->activate('audit.svc', 1);
+        $activateEvent = $this->audit->events[count($this->audit->events) - 1];
+        $this->assertSame('catalog.service.activated', $activateEvent->code);
+        $this->assertSame('audit.svc', $activateEvent->subjectId);
+
+        $this->catalog()->deactivate('audit.svc', 2);
+        $deactivateEvent = $this->audit->events[count($this->audit->events) - 1];
+        $this->assertSame('catalog.service.deactivated', $deactivateEvent->code);
+        $this->assertSame('audit.svc', $deactivateEvent->subjectId);
+
+        $this->catalog()->archive('audit.svc', 3);
+        $archiveEvent = $this->audit->events[count($this->audit->events) - 1];
+        $this->assertSame('catalog.service.archived', $archiveEvent->code);
+        $this->assertSame('audit.svc', $archiveEvent->subjectId);
+    }
 }
 
 final class CatalogTestAccount extends BaseUser
@@ -412,5 +517,16 @@ final class CatalogTestScopes implements ScopeChecker
                 && in_array($request->resourceId, ['owned-1', 'owned-2'], true);
         }
         return false;
+    }
+}
+
+final class CatalogTestAuditRecorder implements \Karband\Audit\AuditRecorderInterface
+{
+    /** @var list<\Karband\Audit\AuditEvent> */
+    public array $events = [];
+
+    public function record(\Karband\Audit\AuditEvent $event): void
+    {
+        $this->events[] = $event;
     }
 }

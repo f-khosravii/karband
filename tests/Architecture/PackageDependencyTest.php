@@ -88,7 +88,7 @@ final class PackageDependencyTest extends TestCase
     public function test_all_packages_have_valid_composer_files(): void
     {
         $packages = ArchitectureTestHelper::getPackages();
-        self::assertCount(24, $packages);
+        self::assertCount(25, $packages);
 
         foreach ($packages as $name => $info) {
             $composer = $info['composer'];

@@ -69,10 +69,20 @@ final class CatalogFinancialTermsTest extends TestCase
         $this->bridge(false)->snapshot('phase19_local', 'service_request', 'req-1', 'agency-a');
     }
 
-    public function test_disabled_service_cannot_be_quoted(): void
+    public function test_existing_payable_request_can_get_snapshot_even_if_service_is_deactivated(): void
     {
         DB::connection(config('service-catalog.connection'))->table('catalog_services')
             ->where('code', 'phase19_local')->update(['status' => 'inactive']);
+        $terms = $this->bridge()->snapshot('phase19_local', 'service_request', 'req-1', 'agency-a');
+        self::assertSame(9000, $terms->money->amount);
+        self::assertSame('IRR', $terms->money->currency);
+        self::assertSame(3, $terms->catalogRevision);
+    }
+
+    public function test_nonexistent_service_fails_closed(): void
+    {
+        DB::connection(config('service-catalog.connection'))->table('catalog_services')
+            ->where('code', 'phase19_local')->delete();
         $this->expectException(\RuntimeException::class);
         $this->bridge()->snapshot('phase19_local', 'service_request', 'req-1', 'agency-a');
     }

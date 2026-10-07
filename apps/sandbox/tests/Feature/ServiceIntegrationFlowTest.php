@@ -318,7 +318,7 @@ final class ServiceIntegrationFlowTest extends TestCase
         self::assertSame('draft', $request->currentState);
         self::assertSame([1, 1, 1], [$request->workflowVersion, $request->formVersion, $request->documentVersion]);
         self::assertFalse(Schema::hasColumn('service_requests', 'status'));
-        $this->assertDatabaseCount('activity_log', 1);
+        $this->assertDatabaseHas('activity_log', ['event' => 'requests.request.created']);
         $this->assertDatabaseCount('payment_intents', 0);
         // In Phase 15, submission prerequisites are enforced BEFORE the state-machine call.
         try {

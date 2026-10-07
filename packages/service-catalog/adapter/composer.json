@@ -8,7 +8,8 @@
         "karband/service-catalog": "@dev",
         "illuminate/support": "^13.0",
         "illuminate/database": "^13.0",
-        "karband/authorization": "@dev"
+        "karband/authorization": "@dev",
+        "karband/audit": "@dev"
     },
     "autoload": {
         "psr-4": {

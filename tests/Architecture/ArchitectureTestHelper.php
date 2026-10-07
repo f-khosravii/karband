@@ -52,7 +52,7 @@ final class ArchitectureTestHelper
                 }
 
                 $name = $composer['name'];
-                $isAdapter = str_ends_with($name, '-laravel');
+                $isAdapter = str_ends_with($name, '-laravel') || str_ends_with($name, '-panel');
                 $isCore = !$isAdapter;
 
                 // Find PSR-4 namespace
@@ -244,7 +244,7 @@ final class ArchitectureTestHelper
             'dynamic-forms' => ['dynamic_form_', 'form_drafts', 'form_definitions', 'form_answers'],
             'external-auth' => ['external_auth_', 'external_sessions'],
             'request-journey' => ['request_journey_', 'journey_definitions', 'request_journeys'],
-            'service-catalog' => ['service_catalog_', 'catalog_services'],
+            'service-catalog' => ['service_catalog_', 'catalog_services', 'catalog_service_revisions'],
             'service-recipients' => ['service_recipient', 'recipients', 'recipient_identity_changes', 'recipient_representatives'],
             'service-requests' => ['service_request', 'service_requests', 'request_cancellations', 'request_representatives', 'request_corrections', 'request_quotes', 'request_quote_proposals'],
             'workflow' => ['workflow_', 'workflow_definitions', 'workflow_instances', 'workflow_history'],

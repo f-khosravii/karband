@@ -8,6 +8,7 @@
         "karband/audit": "@dev",
         "karband/authorization": "@dev",
         "karband/billing": "@dev",
+        "karband/catalog-panel": "@dev",
         "karband/directory": "@dev",
         "karband/directory-laravel": "@dev",
         "karband/documents": "@dev",
@@ -28,6 +29,13 @@
         {
             "type": "path",
             "url": "packages/*/*",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/*",
             "options": {
                 "symlink": true
             }

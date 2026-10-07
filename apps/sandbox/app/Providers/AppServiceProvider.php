@@ -67,6 +67,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\Karband\BillingLaravel\Contracts\TrustedQuoteProvider::class, \App\Bridges\LocalCatalogFinancialTermsProvider::class);
         $this->app->bind(\Karband\BillingLaravel\Contracts\TrustedRefundPolicyProvider::class, \App\Bridges\LocalCatalogFinancialTermsProvider::class);
         $this->app->bind(\Karband\ServiceRequestsLaravel\Contracts\RepresentativeProfileValidator::class, \App\Bridges\DefaultRepresentativeProfileValidator::class);
+        $this->app->bind(\Karband\CatalogPanel\Contracts\CatalogPanelPortInterface::class, \App\Bridges\CatalogPanelBridge::class);
+        $this->app->bind(\Karband\CatalogPanel\Contracts\CatalogPanelAuthorizationInterface::class, \App\Bridges\CatalogPanelBridge::class);
     }
 
     /**

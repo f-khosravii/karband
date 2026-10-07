@@ -28,11 +28,18 @@ final readonly class CatalogStorage
         $binding = $row->workflow_id === null ? null :
             new WorkflowBinding((string) $row->workflow_id, (int) $row->workflow_version);
 
+        $code = isset($row->service_code) ? (string) $row->service_code : (string) $row->code;
+
         return new ServiceDefinition(
-            (string) $row->code, (string) $row->name,
+            $code, (string) $row->name,
             $row->description === null ? null : (string) $row->description,
             $settings, ServiceStatus::from((string) $row->status), $binding, (int) $row->revision,
         );
+    }
+
+    public function hydrateRevision(object $row): ServiceDefinition
+    {
+        return $this->hydrate($row);
     }
 
     /** @return array<string, mixed> */
@@ -46,6 +53,23 @@ final readonly class CatalogStorage
             'workflow_id' => $service->workflow?->id,
             'workflow_version' => $service->workflow?->version,
             'revision' => $service->revision,
+            'updated_at' => now(),
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    public static function revisionColumns(ServiceDefinition $service): array
+    {
+        return [
+            'service_code' => $service->code,
+            'revision' => $service->revision,
+            'name' => $service->name,
+            'description' => $service->description,
+            'settings' => json_encode($service->settings === [] ? (object) [] : $service->settings, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+            'status' => $service->status->value,
+            'workflow_id' => $service->workflow?->id,
+            'workflow_version' => $service->workflow?->version,
+            'created_at' => now(),
             'updated_at' => now(),
         ];
     }

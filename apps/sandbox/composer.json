@@ -12,6 +12,7 @@
         "karband/authorization-laravel": "@dev",
         "karband/billing": "@dev",
         "karband/billing-laravel": "@dev",
+        "karband/catalog-panel": "@dev",
         "karband/directory": "@dev",
         "karband/directory-laravel": "@dev",
         "karband/documents": "@dev",
@@ -74,6 +75,11 @@
             "name": "platform-local",
             "type": "path",
             "url": "../../packages/*/*"
+        },
+        {
+            "name": "platform-local-root",
+            "type": "path",
+            "url": "../../packages/*"
         }
     ]
 }

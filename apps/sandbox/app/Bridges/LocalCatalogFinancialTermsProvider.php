@@ -38,9 +38,9 @@ final readonly class LocalCatalogFinancialTermsProvider implements
         }
         $this->requests->assertPayable($serviceCode, $resourceType, $resourceId, $agencyId);
         $row = $this->catalog->connection->table('catalog_services')
-            ->where('code', $serviceCode)->where('status', 'active')->first();
+            ->where('code', $serviceCode)->first();
         if ($row === null) {
-            throw new RuntimeException('No active local service found for trusted pricing.');
+            throw new RuntimeException('No local service found for trusted pricing.');
         }
         $settings = json_decode((string) $row->settings, true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($settings) || ($settings !== [] && array_is_list($settings))) {
