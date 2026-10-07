@@ -71,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\Karband\CatalogPanel\Contracts\CatalogPanelAuthorizationInterface::class, \App\Bridges\CatalogPanelBridge::class);
         $this->app->bind(\Karband\DirectoryPanel\Contracts\DirectoryPanelPortInterface::class, \App\Bridges\DirectoryPanelBridge::class);
         $this->app->bind(\Karband\DirectoryPanel\Contracts\DirectoryPanelAuthorizationInterface::class, \App\Bridges\DirectoryPanelBridge::class);
+        $this->app->bind(\Karband\AuthPanel\Contracts\AuthPanelPortInterface::class, \App\Bridges\SandboxAuthPanelBridge::class);
     }
 
     /**

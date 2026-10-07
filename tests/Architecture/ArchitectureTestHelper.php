@@ -237,6 +237,7 @@ final class ArchitectureTestHelper
     {
         return [
             'audit' => ['audit_', 'activity_log'],
+            'authentication' => ['authentication_', 'authentication_accounts'],
             'authorization' => ['permissions', 'roles', 'model_has_permissions', 'model_has_roles', 'role_has_permissions'],
             'billing' => ['billing_', 'payment_intents', 'payment_attempts', 'payment_events', 'full_refunds', 'refund_events'],
             'directory' => ['directory_', 'directory_organizations', 'directory_organization_roles', 'directory_users', 'directory_memberships', 'directory_external_references'],

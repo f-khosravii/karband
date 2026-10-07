@@ -6,6 +6,9 @@
     "require": {
         "php": "^8.4",
         "karband/audit": "@dev",
+        "karband/auth-panel": "@dev",
+        "karband/authentication": "@dev",
+        "karband/authentication-laravel": "@dev",
         "karband/authorization": "@dev",
         "karband/billing": "@dev",
         "karband/catalog-panel": "@dev",

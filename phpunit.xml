@@ -21,6 +21,11 @@
     <testsuite name="Directory">
         <directory>packages/directory/core/tests</directory>
     </testsuite>
+    <testsuite name="Authentication">
+        <directory>packages/authentication/core/tests</directory>
+        <directory>packages/authentication/adapter/tests</directory>
+        <directory>packages/auth-panel/tests</directory>
+    </testsuite>
     <testsuite name="External Auth">
         <directory>packages/external-auth/core/tests</directory>
     </testsuite>

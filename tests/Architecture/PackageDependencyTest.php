@@ -83,12 +83,19 @@ final class PackageDependencyTest extends TestCase
         self::assertArrayNotHasKey('karband/external-auth', $directory['require'] ?? []);
         self::assertArrayNotHasKey('karband/authorization-laravel', $directory['require'] ?? []);
         self::assertArrayNotHasKey('karband/service-recipients', $directory['require'] ?? []);
+
+        // 7. Authentication pure package must not depend on Directory, Authorization, External Auth, or adapter packages
+        $auth = $packages['karband/authentication']['composer'];
+        self::assertArrayNotHasKey('karband/directory', $auth['require'] ?? []);
+        self::assertArrayNotHasKey('karband/authorization', $auth['require'] ?? []);
+        self::assertArrayNotHasKey('karband/external-auth', $auth['require'] ?? []);
+        self::assertArrayNotHasKey('karband/authentication-laravel', $auth['require'] ?? []);
     }
 
     public function test_all_packages_have_valid_composer_files(): void
     {
         $packages = ArchitectureTestHelper::getPackages();
-        self::assertCount(26, $packages);
+        self::assertCount(29, $packages);
 
         foreach ($packages as $name => $info) {
             $composer = $info['composer'];

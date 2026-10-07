@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6bc3e1f6a8a0b234b0dbd84c154e38d8",
+    "content-hash": "82ce6462bf45870723511aba02f0eeb6",
     "packages": [
         {
             "name": "brick/math",
@@ -1124,6 +1124,120 @@
                 "proprietary"
             ],
             "description": "Small INTL adapter over Spatie Activitylog for per-microservice business audit events",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "karband/auth-panel",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/auth-panel",
+                "reference": "83957947480a31b29f91527729d8169a3f079eef"
+            },
+            "require": {
+                "illuminate/http": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/routing": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/support": "^11.0 || ^12.0 || ^13.0",
+                "illuminate/view": "^11.0 || ^12.0 || ^13.0",
+                "karband/authentication": "@dev",
+                "php": "^8.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Karband\\AuthPanel\\AuthPanelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Karband\\AuthPanel\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Karband\\AuthPanel\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Reusable authentication presentation panel for Karband",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "karband/authentication",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/authentication/core",
+                "reference": "ad919d9a9bdf056c9c9dd786155fae78a2e9994c"
+            },
+            "require": {
+                "php": "^8.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Karband\\Authentication\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Karband\\Authentication\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Framework-independent internal/native account and credential authentication capability for Karband",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "karband/authentication-laravel",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/authentication/adapter",
+                "reference": "75030ae89e4f0fb1cd9e097423dfd6e726547787"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/hashing": "^13.0",
+                "illuminate/support": "^13.0",
+                "karband/audit": "@dev",
+                "karband/authentication": "@dev",
+                "php": "^8.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Karband\\AuthenticationLaravel\\AuthenticationLaravelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Karband\\AuthenticationLaravel\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Karband\\AuthenticationLaravel\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Local Laravel persistence and hashing adapter for Karband Authentication",
             "transport-options": {
                 "relative": true
             }
@@ -9055,6 +9169,9 @@
     "stability-flags": {
         "karband/audit": 20,
         "karband/audit-laravel": 20,
+        "karband/auth-panel": 20,
+        "karband/authentication": 20,
+        "karband/authentication-laravel": 20,
         "karband/authorization": 20,
         "karband/authorization-laravel": 20,
         "karband/billing": 20,

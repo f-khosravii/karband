@@ -1,0 +1,31 @@
+{
+    "name": "karband/auth-panel",
+    "description": "Reusable authentication presentation panel for Karband",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "illuminate/http": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/routing": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/support": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/view": "^11.0 || ^12.0 || ^13.0",
+        "karband/authentication": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\AuthPanel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Karband\\AuthPanel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\AuthPanel\\AuthPanelServiceProvider"
+            ]
+        }
+    }
+}

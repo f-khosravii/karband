@@ -1,0 +1,31 @@
+{
+    "name": "karband/authentication-laravel",
+    "description": "Local Laravel persistence and hashing adapter for Karband Authentication",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "karband/authentication": "@dev",
+        "karband/audit": "@dev",
+        "illuminate/database": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/hashing": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/support": "^11.0 || ^12.0 || ^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Karband\\AuthenticationLaravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Karband\\AuthenticationLaravel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Karband\\AuthenticationLaravel\\AuthenticationLaravelServiceProvider"
+            ]
+        }
+    }
+}
