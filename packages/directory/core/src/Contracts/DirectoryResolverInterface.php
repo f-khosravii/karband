@@ -18,4 +18,16 @@ interface DirectoryResolverInterface
         string $externalId,
         ?string $explicitOrganizationId = null
     ): ResolvedDirectoryActor;
+
+    /**
+     * List all valid, available organization actors for an authenticated source reference.
+     * Used by Hosts for pre-selection context discovery (0 vs 1 vs >1 contexts).
+     *
+     * @return list<ResolvedDirectoryActor>
+     */
+    public function listAvailableActorsBySourceReference(
+        string $source,
+        string $referenceKind,
+        string $externalId
+    ): array;
 }

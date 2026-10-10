@@ -561,4 +561,75 @@ final class DirectoryCapabilityTest extends TestCase
         $history = $this->storage->listMembershipsForUserAndOrganization('usr-atomic-1', 'org-atomic-1');
         self::assertCount(3, $history);
     }
+
+    public function test_resolver_discovery_with_membership_history_filters_inactive_and_ended_periods(): void
+    {
+        // Scenario from requirement: User U1 with O1 active, O2 ended, O3 active
+        $this->service->createOrganization('O1', 'Organization 1', DirectoryStatus::Active);
+        $this->service->createOrganization('O2', 'Organization 2', DirectoryStatus::Active);
+        $this->service->createOrganization('O3', 'Organization 3', DirectoryStatus::Active);
+
+        $this->service->createUser('U1', 'User 1', DirectoryStatus::Active);
+
+        $this->service->createMembership('M-O1', 'U1', 'O1', new OrganizationRole('operator'), DirectoryStatus::Active);
+        $this->service->createMembership('M-O2', 'U1', 'O2', new OrganizationRole('member'), DirectoryStatus::Active);
+        $this->service->endMembership('U1', 'O2', new DateTimeImmutable('-1 day'));
+        $this->service->createMembership('M-O3', 'U1', 'O3', new OrganizationRole('lead'), DirectoryStatus::Active);
+
+        $this->service->linkUserReference('auth-provider', 'account', 'ACC-U1', 'U1');
+
+        $candidates = $this->resolver->listAvailableActorsBySourceReference('auth-provider', 'account', 'ACC-U1');
+
+        $this->assertCount(2, $candidates);
+
+        $orgIds = array_map(fn ($actor) => $actor->organizationId, $candidates);
+        $this->assertContains('O1', $orgIds);
+        $this->assertContains('O3', $orgIds);
+        $this->assertNotContains('O2', $orgIds);
+
+        foreach ($candidates as $actor) {
+            $this->assertSame('U1', $actor->userId);
+        }
+    }
+
+    public function test_sandbox_consumer_discovery_and_final_resolution_without_storage_ports(): void
+    {
+        // Provision Directory facts
+        $this->service->createOrganization('org-consumer-1', 'Consumer Org 1', DirectoryStatus::Active);
+        $this->service->createOrganization('org-consumer-2', 'Consumer Org 2', DirectoryStatus::Active);
+        $this->service->createUser('usr-consumer', 'Consumer User', DirectoryStatus::Active);
+
+        $this->service->createMembership('mem-c1', 'usr-consumer', 'org-consumer-1', new OrganizationRole('auditor'), DirectoryStatus::Active);
+        $this->service->createMembership('mem-c2', 'usr-consumer', 'org-consumer-2', new OrganizationRole('consultant'), DirectoryStatus::Active);
+
+        $this->service->linkUserReference('authentication', 'account', 'ACC-CONSUMER-99', 'usr-consumer');
+
+        // CONSUMER FLOW:
+        // 1. Consume ONLY DirectoryResolverInterface (pure public domain contract)
+        /** @var DirectoryResolverInterface $resolverInterface */
+        $resolverInterface = $this->app->make(DirectoryResolverInterface::class);
+
+        // 2. Pre-selection discovery
+        $availableContexts = $resolverInterface->listAvailableActorsBySourceReference(
+            source: 'authentication',
+            referenceKind: 'account',
+            externalId: 'ACC-CONSUMER-99'
+        );
+
+        $this->assertCount(2, $availableContexts);
+
+        // 3. User chooses 'org-consumer-2' from discovered candidates
+        $selectedOrgId = 'org-consumer-2';
+
+        // 4. Final authoritative resolution
+        $resolvedActor = $resolverInterface->resolveBySourceReference(
+            source: 'authentication',
+            referenceKind: 'account',
+            externalId: 'ACC-CONSUMER-99',
+            explicitOrganizationId: $selectedOrgId
+        );
+
+        $this->assertSame('org-consumer-2', $resolvedActor->organizationId);
+        $this->assertSame('usr-consumer', $resolvedActor->userId);
+    }
 }

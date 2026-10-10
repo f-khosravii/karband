@@ -40,6 +40,7 @@ final readonly class Membership
 
     public function isActive(): bool
     {
-        return $this->status->isActive();
+        return $this->status->isActive() && $this->endedAt === null;
     }
+
 }
