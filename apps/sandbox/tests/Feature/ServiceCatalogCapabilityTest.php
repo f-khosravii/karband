@@ -469,6 +469,64 @@ final class ServiceCatalogCapabilityTest extends TestCase
         $this->assertSame('catalog.service.archived', $archiveEvent->code);
         $this->assertSame('audit.svc', $archiveEvent->subjectId);
     }
+
+    public function test_update_workflow_binding_increments_revision_and_preserves_other_data(): void
+    {
+        $this->publish(1);
+        $this->publish(2);
+
+        $created = $this->catalog()->create($this->draft('wf.svc', 1, [
+            'custom_key' => 'custom_val',
+            'pricing_mode' => 'fixed_catalog',
+            'billing_fixed_price_minor' => 1300,
+            'billing_currency' => 'USD',
+        ]));
+        $this->assertSame(0, $created->revision);
+        $this->assertSame(1, $created->workflow->version);
+
+        $updated = $this->catalog()->updateWorkflowBinding('wf.svc', 0, $this->binding(2));
+        $this->assertSame(1, $updated->revision);
+        $this->assertSame(2, $updated->workflow->version);
+        $this->assertSame('wf.svc', $updated->code);
+        $this->assertSame($created->name, $updated->name);
+        $this->assertSame($created->description, $updated->description);
+        $this->assertSame('custom_val', $updated->settings['custom_key']);
+        $this->assertSame(1300, $updated->settings['billing_fixed_price_minor']);
+        $this->assertSame('USD', $updated->settings['billing_currency']);
+        $this->assertSame(ServiceStatus::Inactive, $updated->status);
+
+        // Immutable history check
+        $rev0 = $this->catalog()->getRevision('wf.svc', 0);
+        $this->assertSame(1, $rev0->workflow->version);
+        $rev1 = $this->catalog()->getRevision('wf.svc', 1);
+        $this->assertSame(2, $rev1->workflow->version);
+
+        // Audit event emitted
+        $updateEvent = $this->audit->events[count($this->audit->events) - 1];
+        $this->assertSame('catalog.service.updated', $updateEvent->code);
+        $this->assertSame('wf.svc', $updateEvent->subjectId);
+    }
+
+    public function test_update_workflow_binding_stale_revision_fails(): void
+    {
+        $this->publish(1);
+        $this->publish(2);
+        $this->catalog()->create($this->draft('wf.stale', 1));
+
+        $this->catalog()->updateWorkflowBinding('wf.stale', 0, $this->binding(2));
+
+        $this->expectException(StaleService::class);
+        $this->catalog()->updateWorkflowBinding('wf.stale', 0, $this->binding(1));
+    }
+
+    public function test_update_workflow_binding_with_unregistered_definition_fails_closed(): void
+    {
+        $this->publish(1);
+        $this->catalog()->create($this->draft('wf.fail', 1));
+
+        $this->expectException(\RuntimeException::class);
+        $this->catalog()->updateWorkflowBinding('wf.fail', 0, $this->binding(99));
+    }
 }
 
 final class CatalogTestAccount extends BaseUser

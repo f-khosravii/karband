@@ -13,6 +13,7 @@ use Karband\Authorization\AuthorizerInterface;
 use Karband\ServiceCatalog\Definitions\ServiceDefinition;
 use Karband\ServiceCatalog\Definitions\ServiceDraft;
 use Karband\ServiceCatalog\Definitions\ServiceStatus;
+use Karband\ServiceCatalog\Definitions\WorkflowBinding;
 use Karband\ServiceCatalog\Exceptions\InvalidService;
 use Karband\ServiceCatalog\Financial\ServiceFinancialTerms;
 use Karband\ServiceCatalogLaravel\Contracts\WorkflowDefinitionVerifier;
@@ -204,6 +205,25 @@ final readonly class ServiceCatalog
             description: $current->description,
             settings: $settings,
             workflow: $current->workflow,
+        );
+        return $this->replace($code, $expectedRevision, $draft);
+    }
+
+    /**
+     * Update workflow binding (creates a new immutable revision).
+     */
+    public function updateWorkflowBinding(
+        string $code,
+        int $expectedRevision,
+        WorkflowBinding $binding,
+    ): ServiceDefinition {
+        $current = $this->get($code);
+        $draft = new ServiceDraft(
+            code: $code,
+            name: $current->name,
+            description: $current->description,
+            settings: $current->settings,
+            workflow: $binding,
         );
         return $this->replace($code, $expectedRevision, $draft);
     }
