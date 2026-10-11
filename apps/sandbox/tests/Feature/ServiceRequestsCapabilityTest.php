@@ -509,6 +509,28 @@ final class ServiceRequestsCapabilityTest extends TestCase
         $this->assertCount(1, $listAfter);
         $this->assertSame($request->id, $listAfter[0]->id);
     }
+
+    public function test_agency_and_reviewer_can_inspect_active_correction_and_history(): void
+    {
+        $this->asRole('agency', 'agency-a');
+        $request = $this->registry()->create($this->draft('customer-1'));
+        $this->registry()->saveAnswers($request->id, ['name' => 'Alice'], 0);
+        $this->registry()->act($request->id, 'submit');
+
+        $this->asRole('government_admin', 'gov-org');
+        $this->account->givePermissionTo('requests.view', 'requests.correction.issue');
+        $lifecycle = app(RequestLifecycle::class);
+        $lifecycle->requireCorrection($request->id, 'Please fix name', ['name']);
+
+        $active = $lifecycle->activeCorrection($request->id);
+        $this->assertNotNull($active);
+        $this->assertSame('Please fix name', $active->reason);
+        $this->assertSame(1, (int) $active->round);
+
+        $history = $lifecycle->correctionHistory($request->id);
+        $this->assertCount(1, $history);
+        $this->assertSame($active->id, $history[0]->id);
+    }
 }
 
 final class ServiceRequestsTestAccount extends BaseUser

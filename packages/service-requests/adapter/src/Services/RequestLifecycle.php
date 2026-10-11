@@ -416,6 +416,22 @@ final readonly class RequestLifecycle
             ->where('request_id', $id)->orderBy('created_at')->get()->all();
     }
 
+    /** @return array<int, object> Authorized correction history. */
+    public function correctionHistory(string $id): array
+    {
+        $this->requests->view($id);
+        return $this->storage->connection->table('request_corrections')
+            ->where('request_id', $id)->orderBy('round', 'asc')->get()->all();
+    }
+
+    /** @return object|null Authorized active correction round. */
+    public function activeCorrection(string $id): ?object
+    {
+        $this->requests->view($id);
+        return $this->storage->connection->table('request_corrections')
+            ->where('request_id', $id)->where('active', true)->first();
+    }
+
     /** Execute under the authoritative Workflow row lock, THEN the local request lock, then audit. */
     private function locked(string $id, callable $operation): mixed
     {
