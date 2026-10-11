@@ -148,6 +148,61 @@ final readonly class ServiceRequests
         return $this->readExistingAuthorized($this->row($id), $this->actor());
     }
 
+    /**
+     * List non-deleted requests belonging to the authenticated agency.
+     *
+     * @return array<int, RequestSnapshot>
+     */
+    public function listForAgency(int $limit = 25, ?string $afterId = null): array
+    {
+        $actor = $this->actor();
+        $agency = $this->requireAgency($actor);
+        if ($limit < 1 || $limit > 100 || ($afterId !== null && !preg_match('/\A[0-9A-HJKMNP-TV-Z]{26}\z/D', $afterId))) {
+            throw new \InvalidArgumentException('Invalid request pagination.');
+        }
+
+        $q = $this->requests->connection->table('service_requests')
+            ->where('agency_id', $agency)
+            ->whereNull('deleted_at')
+            ->orderBy('id', 'desc')
+            ->limit($limit);
+
+        if ($afterId !== null) {
+            $q->where('id', '<', $afterId);
+        }
+
+        return $q->get()->map(fn (object $row): RequestSnapshot => $this->readExistingAuthorized($row, $actor))->all();
+    }
+
+    /**
+     * List non-deleted submitted requests available for privileged review.
+     *
+     * @return array<int, RequestSnapshot>
+     */
+    public function listForReview(?string $serviceCode = null, int $limit = 25, ?string $afterId = null): array
+    {
+        $actor = $this->actor();
+        if ($limit < 1 || $limit > 100 || ($afterId !== null && !preg_match('/\A[0-9A-HJKMNP-TV-Z]{26}\z/D', $afterId))) {
+            throw new \InvalidArgumentException('Invalid request pagination.');
+        }
+
+        $q = $this->requests->connection->table('service_requests')
+            ->whereNotNull('first_submitted_at')
+            ->whereNull('deleted_at')
+            ->orderBy('id', 'desc')
+            ->limit($limit);
+
+        if ($serviceCode !== null) {
+            $q->where('service_code', $serviceCode);
+        }
+
+        if ($afterId !== null) {
+            $q->where('id', '<', $afterId);
+        }
+
+        return $q->get()->map(fn (object $row): RequestSnapshot => $this->readExistingAuthorized($row, $actor))->all();
+    }
+
     /** No second status engine. Guards and action-level authorization belong to Workflow. */
     public function act(string $id, string $action, ?string $comment = null, ?string $idempotencyKey = null): RequestActionResult
     {

@@ -472,6 +472,43 @@ final class ServiceRequestsCapabilityTest extends TestCase
         $this->expectException(AuthorizationDenied::class);
         $this->registry()->view($request->id);
     }
+
+    public function test_agency_can_list_its_own_requests(): void
+    {
+        $this->asRole('agency-admin', 'agency-a');
+        $request1 = $this->registry()->create($this->draft('customer-1', 'idem-1'));
+        $request2 = $this->registry()->create($this->draft('customer-1', 'idem-2'));
+
+        $list = $this->registry()->listForAgency();
+        $this->assertCount(2, $list);
+        $this->assertSame($request2->id, $list[0]->id);
+        $this->assertSame($request1->id, $list[1]->id);
+    }
+
+    public function test_reviewer_with_privileged_access_can_list_submitted_requests(): void
+    {
+        $this->asRole('agency', 'agency-a');
+        $request = $this->registry()->create($this->draft('customer-1'));
+
+        // Reviewer before submission: empty list
+        $this->asRole('government_admin', 'gov-org');
+        $this->account->givePermissionTo('requests.view', 'requests.correction.issue');
+        $listBefore = $this->registry()->listForReview();
+        $this->assertCount(0, $listBefore);
+
+        // Submit request
+        $this->asRole('agency', 'agency-a');
+        $this->registry()->saveAnswers($request->id, ['name' => 'Alice'], 0);
+        $outcome = $this->registry()->act($request->id, 'submit');
+        $this->assertTrue($outcome->applied);
+
+        // Reviewer after submission: 1 request
+        $this->asRole('government_admin', 'gov-org');
+        $this->account->givePermissionTo('requests.view', 'requests.correction.issue');
+        $listAfter = $this->registry()->listForReview();
+        $this->assertCount(1, $listAfter);
+        $this->assertSame($request->id, $listAfter[0]->id);
+    }
 }
 
 final class ServiceRequestsTestAccount extends BaseUser
