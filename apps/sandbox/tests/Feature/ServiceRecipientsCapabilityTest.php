@@ -52,13 +52,14 @@ final class ServiceRecipientsCapabilityTest extends TestCase
         // Permissive TEST scope is intentional: Recipients enforces agency ownership separately.
         $this->app->instance(ScopeChecker::class, new RecipientTestScopes());
         app(PermissionRegistrar::class)->forgetCachedPermissions();
-        foreach (['agency','platform_admin','government_admin'] as $r) { Role::findOrCreate($r,'web'); }
+        foreach (['agency','agency-admin','platform_admin','government_admin','powerless'] as $r) { Role::findOrCreate($r,'web'); }
         $agencyAbilities = ['recipients.create','recipients.list','recipients.view','recipients.update',
             'recipients.identity.request','recipients.representative.add',
             'recipients.representative.view','recipients.representative.deactivate'];
         $platformAbilities = ['recipients.identity.decide','recipients.archive','recipients.restore'];
         foreach (array_merge($agencyAbilities,$platformAbilities) as $ability) { Permission::findOrCreate($ability,'web'); }
         Role::findByName('agency','web')->givePermissionTo($agencyAbilities);
+        Role::findByName('agency-admin','web')->givePermissionTo($agencyAbilities);
         Role::findByName('platform_admin','web')->givePermissionTo($platformAbilities);
         $this->user = RecipientTestUser::create([
             'name'=>'Recipient tester','email'=>'recipient-test@example.test','password'=>'test-only',
@@ -156,6 +157,29 @@ final class ServiceRecipientsCapabilityTest extends TestCase
         $this->svc()->deactivateRepresentative($legal->id,$one);
         self::assertCount(1,$this->svc()->activeRepresentatives($legal->id));
     }
+    public function test_organization_scoped_actor_with_agency_admin_role_can_create_and_manage_recipients(): void
+    {
+        $this->asRole('agency-admin', 'agency-custom');
+        $r = $this->svc()->create($this->person());
+        self::assertSame('agency-custom', $r->agencyId);
+        self::assertSame('Fixture Person', $this->svc()->get($r->id)->profile['full_name']);
+        self::assertCount(1, $this->svc()->listActive());
+    }
+
+    public function test_actor_with_organization_id_but_missing_permission_is_denied(): void
+    {
+        $this->asRole('powerless', 'agency-a');
+        $this->expectException(AuthorizationDenied::class);
+        $this->svc()->create($this->person());
+    }
+
+    public function test_actor_with_permission_but_null_organization_id_is_denied(): void
+    {
+        $this->asRole('agency-admin', null);
+        $this->expectException(AuthorizationDenied::class);
+        $this->svc()->create($this->person());
+    }
+
     public function test_missing_bridge_fails_closed_before_writes(): void
     {
         $this->app->forgetInstance(RecipientRequestBridge::class);

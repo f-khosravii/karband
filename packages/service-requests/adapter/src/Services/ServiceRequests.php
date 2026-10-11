@@ -303,23 +303,23 @@ final readonly class ServiceRequests
     private function readExistingAuthorized(object $row, ActorContext $actor): RequestSnapshot
     {
         if ($row->deleted_at !== null) {
-            if ($actor->role !== 'platform_admin') {
+            try {
+                $this->authorization->authorize(
+                    $actor,
+                    new AccessRequest('requests.deleted.view', RequestResource::TYPE, (string) $row->id)
+                );
+            } catch (\Throwable) {
                 throw new RequestNotFound('Request not found.');
             }
-            $this->authorization->authorize(
-                $actor,
-                new AccessRequest('requests.deleted.view', RequestResource::TYPE, (string) $row->id)
-            );
         }
         $this->authorization->authorize(
             $actor,
             new AccessRequest('requests.view', RequestResource::TYPE, (string) $row->id)
         );
-        if ($actor->role === 'agency' && $actor->organizationId !== (string) $row->agency_id) {
-            throw new AuthorizationDenied('foreign_agency');
-        }
-        if (!in_array($actor->role, ['agency', 'government_admin', 'platform_admin'], true)) {
-            throw new AuthorizationDenied('unsupported_request_role');
+        if ($actor->organizationId !== null && (string) $row->agency_id !== $actor->organizationId) {
+            if (!$this->hasPrivilegedReviewAccess($actor, (string) $row->id)) {
+                throw new AuthorizationDenied('foreign_agency');
+            }
         }
 
         $defDetails = $this->workflow->getDefinitionDetails((string) $row->workflow_instance_id, RequestResource::TYPE, (string) $row->id);
@@ -338,6 +338,19 @@ final readonly class ServiceRequests
             $this->requests->connection->table('request_cancellations')->where('request_id', $row->id)
                 ->where('status', 'pending')->exists()
         );
+    }
+
+    private function hasPrivilegedReviewAccess(ActorContext $actor, string $requestId): bool
+    {
+        foreach (['requests.cancel.decide', 'requests.correction.issue', 'requests.restore', 'requests.deleted.view'] as $ability) {
+            try {
+                $this->authorization->authorize($actor, new AccessRequest($ability, RequestResource::TYPE, $requestId));
+                return true;
+            } catch (\Throwable) {
+                continue;
+            }
+        }
+        return false;
     }
 
     private function assertRecipient(string $serviceCode, string $agency, RecipientReference $recipient): void
@@ -365,7 +378,7 @@ final readonly class ServiceRequests
 
     private function requireAgency(ActorContext $actor): string
     {
-        if ($actor->role !== 'agency' || $actor->organizationId === null || $actor->organizationId === '') {
+        if ($actor->organizationId === null || trim($actor->organizationId) === '') {
             throw new AuthorizationDenied('agency_identity_required');
         }
         return $actor->organizationId;

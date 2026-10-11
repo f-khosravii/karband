@@ -65,7 +65,7 @@ final class ServiceRequestsCapabilityTest extends TestCase
     {
         parent::setUp();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
-        foreach (['agency', 'government_admin', 'platform_admin'] as $role) { Role::findOrCreate($role, 'web'); }
+        foreach (['agency', 'agency-admin', 'government_admin', 'platform_admin', 'powerless'] as $role) { Role::findOrCreate($role, 'web'); }
         foreach ([
             'workflow.definition.publish','workflow.instance.start','workflow.instance.view','workflow.action.submit',
             'catalog.service.create','catalog.service.activate','catalog.service.deactivate','catalog.service.view','catalog.service.use',
@@ -83,13 +83,15 @@ final class ServiceRequestsCapabilityTest extends TestCase
             'forms.definition.edit','forms.definition.publish','documents.definition.edit','documents.definition.publish',
             'requests.view','requests.restore','requests.deleted.view',
         ]);
-        Role::findByName('agency', 'web')->givePermissionTo([
+        $agencyPerms = [
             'workflow.instance.start','workflow.instance.view','workflow.action.submit','catalog.service.use',
             'forms.response.submit','forms.response.view','documents.file.upload','documents.file.view',
             'requests.create','requests.view','requests.cancel.draft','requests.cancel.request',
             'requests.cancel.withdraw','requests.correction.resubmit','requests.draft.delete',
             'requests.representative.select','workflow.action.resubmit','workflow.action.cancel_draft',
-        ]);
+        ];
+        Role::findByName('agency', 'web')->givePermissionTo($agencyPerms);
+        Role::findByName('agency-admin', 'web')->givePermissionTo($agencyPerms);
         Role::findByName('government_admin', 'web')->givePermissionTo([
             'requests.view','requests.cancel.decide','requests.correction.issue',
             'workflow.action.require_correction','workflow.action.cancel_submitted',
@@ -420,6 +422,55 @@ final class ServiceRequestsCapabilityTest extends TestCase
         self::assertSame(1,\DB::table('request_representatives')->where('request_id',$id)->count());
         $this->expectException(RequestConflict::class);
         app(RequestLifecycle::class)->selectLegalRepresentative($id,null,['name'=>'Second'],0);
+    }
+
+    public function test_organization_scoped_actor_with_agency_admin_role_can_create_and_manage_requests(): void
+    {
+        $this->asRole('agency-admin', 'agency-a');
+        $request = $this->registry()->create($this->draft('customer-2'));
+        self::assertSame('agency-a', $request->agencyId);
+        self::assertSame('customer-2', $request->recipient->id);
+        self::assertSame(1, $request->formVersion);
+        self::assertSame(1, $request->documentVersion);
+
+        $viewed = $this->registry()->view($request->id);
+        self::assertSame($request->id, $viewed->id);
+        self::assertSame('agency-a', $viewed->agencyId);
+        self::assertSame('draft', $viewed->currentState);
+
+        $saved = $this->registry()->saveAnswers($request->id, ['name' => 'Alice'], 0);
+        self::assertSame(['name' => 'Alice'], $saved['answers']);
+    }
+
+    public function test_actor_with_organization_id_but_missing_permission_is_denied(): void
+    {
+        $this->asRole('powerless', 'agency-a');
+        $this->expectException(AuthorizationDenied::class);
+        $this->registry()->create($this->draft('customer-1'));
+    }
+
+    public function test_actor_with_permission_but_null_organization_id_is_denied(): void
+    {
+        $this->asRole('agency-admin', null);
+        $this->expectException(AuthorizationDenied::class);
+        $this->registry()->create($this->draft('customer-1'));
+    }
+
+    public function test_foreign_organization_cannot_create_request_using_another_organization_recipient(): void
+    {
+        $this->asRole('agency-admin', 'foreign-agency');
+        $this->expectException(AuthorizationDenied::class);
+        $this->registry()->create($this->draft('customer-1'));
+    }
+
+    public function test_foreign_organization_cannot_access_another_organization_request(): void
+    {
+        $this->asRole('agency-admin', 'agency-a');
+        $request = $this->registry()->create($this->draft('customer-1'));
+
+        $this->asRole('agency-admin', 'foreign-agency');
+        $this->expectException(AuthorizationDenied::class);
+        $this->registry()->view($request->id);
     }
 }
 

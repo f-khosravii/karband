@@ -296,7 +296,14 @@ final readonly class RequestQuoteService
 
     private function assertOwnedByAgency(object $request, ActorContext $actor): void
     {
-        if ($actor->role === 'agency' && (string) $request->agency_id !== (string) $actor->organizationId) {
+        try {
+            $this->authorization->authorize($actor, new AccessRequest('quote.propose', RequestResource::TYPE, (string) $request->id));
+            return;
+        } catch (\Throwable) {
+            // Not a quote proposer, enforce organization ownership
+        }
+
+        if ($actor->organizationId !== null && (string) $request->agency_id !== (string) $actor->organizationId) {
             throw new AuthorizationDenied('agency_scope_denied');
         }
     }

@@ -221,7 +221,7 @@ final readonly class RequestLifecycle
     {
         $actor = $this->actor();
         $snapshot = $this->requests->view($id);
-        if ($actor->role !== 'agency' || $actor->organizationId !== $snapshot->agencyId) {
+        if ($actor->organizationId === null || $actor->organizationId !== $snapshot->agencyId) {
             throw new AuthorizationDenied('agency_scope_denied');
         }
         $row = $this->storage->connection->table('service_requests')->where('id', $id)->first();
@@ -254,7 +254,7 @@ final readonly class RequestLifecycle
     {
         $actor = $this->actor();
         $snapshot = $this->requests->view($id);
-        if ($actor->role !== 'agency' || $actor->organizationId !== $snapshot->agencyId) {
+        if ($actor->organizationId === null || $actor->organizationId !== $snapshot->agencyId) {
             throw new AuthorizationDenied('agency_scope_denied');
         }
         $row = $this->storage->connection->table('service_requests')->where('id', $id)->first();
@@ -444,7 +444,7 @@ final readonly class RequestLifecycle
 
     private function agency(ActorContext $actor, object $row, string $permission): void
     {
-        if ($actor->role !== 'agency' || $actor->organizationId !== (string) $row->agency_id) {
+        if ($actor->organizationId === null || $actor->organizationId !== (string) $row->agency_id) {
             throw new AuthorizationDenied('agency_ownership_required');
         }
         $this->authorization->authorize($actor, new AccessRequest($permission, RequestResource::TYPE, (string) $row->id));
@@ -452,17 +452,11 @@ final readonly class RequestLifecycle
 
     private function government(ActorContext $actor, object $row, string $permission): void
     {
-        if ($actor->role !== 'government_admin') {
-            throw new AuthorizationDenied('government_role_required');
-        }
         $this->authorization->authorize($actor, new AccessRequest($permission, RequestResource::TYPE, (string) $row->id));
     }
 
     private function platform(ActorContext $actor, object $row, string $permission): void
     {
-        if ($actor->role !== 'platform_admin') {
-            throw new AuthorizationDenied('platform_role_required');
-        }
         $this->authorization->authorize($actor, new AccessRequest($permission, RequestResource::TYPE, (string) $row->id));
     }
 

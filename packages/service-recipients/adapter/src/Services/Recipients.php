@@ -53,7 +53,7 @@ final readonly class Recipients
     private function agencyActor(string $ability, string $resourceType, string $resourceId): array
     {
         $actor = $this->actor();
-        if ($actor->role !== 'agency' || $actor->organizationId === null) {
+        if ($actor->organizationId === null || trim($actor->organizationId) === '') {
             throw new AuthorizationDenied('agency_required');
         }
         $this->permissions->authorize($actor, new AccessRequest($ability, $resourceType, $resourceId));
@@ -62,7 +62,6 @@ final readonly class Recipients
     private function platformActor(string $ability, string $recipientId): ActorContext
     {
         $actor = $this->actor();
-        if ($actor->role !== 'platform_admin') { throw new AuthorizationDenied('platform_admin_required'); }
         $this->permissions->authorize($actor, new AccessRequest($ability, 'recipient', $recipientId));
         return $actor;
     }
